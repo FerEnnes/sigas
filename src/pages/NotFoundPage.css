@@ -1,0 +1,50 @@
+.notfound-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  .notfound-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px;
+    background-color: #fefefe;
+  }
+  
+  .notfound-content h1 {
+    font-size: 96px;
+    color: #6da972;
+    margin: 0;
+  }
+  
+  .notfound-content h2 {
+    font-size: 28px;
+    margin-top: 12px;
+    color: #444;
+  }
+  
+  .notfound-content p {
+    font-size: 16px;
+    color: #777;
+    margin: 16px 0 32px;
+  }
+  
+  .notfound-content a {
+    text-decoration: none;
+    background-color: #6da972;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+  }
+  
+  .notfound-content a:hover {
+    background-color: #5b935f;
+  }
+  

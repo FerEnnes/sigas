@@ -1,0 +1,112 @@
+.property-list {
+  flex: 1;
+  padding: 30px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.property-list h3 {
+  margin: 0;
+}
+
+.add-button {
+  background-color: #6da972;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.2s;
+  width: fit-content;
+  min-width: 140px;
+}
+
+.add-button:hover {
+  background-color: #5c915f;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  font-weight: bold;
+  color: #444;
+}
+
+button {
+  background-color: #f0f0ff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.form-sidebar {
+  width: 360px;
+  padding: 30px 24px 40px;
+  background-color: #fafafa;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  height: 100vh;
+  overflow-y: auto;
+  position: relative;
+  border-left: 1px solid #e0e0e0;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.form-sidebar h3 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #333;
+  font-weight: bold;
+}
+
+.form-sidebar input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  background-color: #fdfdfd;
+  color: #333;
+  width: 100%;
+}
+
+.form-sidebar .close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #f8d7da;
+  color: #721c24;
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.2s;
+}
+
+.form-sidebar .close-button:hover {
+  background: #f1b0b7;
+}

@@ -1,0 +1,126 @@
+.form-container {
+    width: 100%;
+    max-width: 400px;
+    background-color: #fdfdfd;
+    padding: 24px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #e6e6e6;
+    box-shadow: -2px 0 6px rgba(0, 0, 0, 0.03);
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  .form-container h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 16px;
+  }
+  
+  /* Deixa o formulário mais compacto */
+  form.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* Ajuste se quiser mais ou menos espaço vertical */
+  }
+  
+  /* Container para campos lado a lado */
+  .input-row {
+    display: flex;
+    gap: 15px;
+  }
+  
+  /* Remove o asterisco automático do label */
+  .required-wrapper label::after {
+    content: none;
+  }
+  
+  /* O contêiner do label e input */
+  .required-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 6px;
+  }
+  
+  .required-wrapper label {
+    font-size: 13px;
+    color: #444;
+    font-weight: 500;
+    margin: 2px 0;
+  }
+  
+  /* Asterisco no canto superior direito do required-wrapper */
+  .asterisk {
+    position: absolute;
+    top: 0; 
+    right: 0;
+    color: #c62828;
+    font-weight: bold;
+  }
+  
+  /* Inputs do formulário */
+  .required-wrapper input {
+    height: 36px;
+    padding: 6px 10px;
+    border: none;
+    background-color: #f4f4f4;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #333;
+    box-shadow: inset 0 0 0 1px #ddd;
+    margin-bottom: 2px;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  
+  .required-wrapper input:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 2px #6da972;
+    background-color: #fff;
+  }
+  
+  .error {
+    color: #c62828;
+    font-size: 12px;
+    margin-top: 2px;
+  }
+  
+  .note-obrigatorio {
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+    text-align: right;
+    margin-top: 4px;
+  }
+  
+  button[type="submit"] {
+    background-color: #6da972;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 15px;
+    width: 100%;
+    margin-top: 6px;
+    transition: background-color 0.2s ease;
+  }
+  
+  button[type="submit"]:hover {
+    background-color: #5c915f;
+  }
+  
+  /* AQUI controlamos o tamanho relativo de Telefone e CEP */
+  .telefone-field {
+    flex: 3.5; /* Maior espaço para Telefone */
+  }
+  .cep-field {
+    flex: 3; /* Menor espaço para CEP */
+  }
+  
