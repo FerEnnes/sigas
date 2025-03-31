@@ -2,7 +2,8 @@
 
 Sistema web para gestão agrícola de pequenas propriedades e agricultura familiar com painel financeiro, calendário inteligente e organização de propriedades e fornecedores.
 
-![Preview](https://via.placeholder.com/900x400.png?text=SaaS+Agro+Light+Preview)
+<img width="2048" alt="Captura de Tela 2025-03-31 às 01 29 41" src="https://github.com/user-attachments/assets/535a75f2-68fb-4055-9aae-ecd8a0b48202" />
+
 
 ## 🧩 Funcionalidades
 
