@@ -4,6 +4,8 @@ import SupplierListPage from './pages/SupplierListPage';
 import SupplierFormPage from './pages/SupplierFormPage';
 import PropertyListPage from './pages/PropertyListPage';
 import PropertyFormPage from './pages/PropertyFormPage';
+import ClienteListPage from './pages/ClienteListPage';
+import ClienteFormPage from './pages/ClienteFormPage';
 import CalendarioPage from './pages/CalendarioPage';
 import PlanoSimplificadoPage from './pages/PlanoSimplificadoPage';
 import PlanoDetalhadoPage from './pages/PlanoDetalhadoPage';
@@ -25,6 +27,10 @@ function App() {
         <Route path="/propriedades" element={<PropertyListPage />} />
         <Route path="/propriedades/cadastrar" element={<PropertyFormPage />} />
 
+        {/* Clientes */}
+        <Route path="/clientes" element={<ClienteListPage />} />
+        <Route path="/clientes/cadastrar" element={<ClienteFormPage />} />
+
         {/* Calendário */}
         <Route path="/calendario" element={<CalendarioPage />} />
 
@@ -40,13 +46,4 @@ function App() {
 }
 
 export default App;
-
-
-
-
-
-
-
-
-
 

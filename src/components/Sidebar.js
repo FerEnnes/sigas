@@ -19,7 +19,7 @@ import {
   FiChevronUp,
   FiGrid,
   FiClipboard,
-  FiFileText, // ✅ Novo ícone adicionado
+  FiFileText,
 } from 'react-icons/fi';
 
 function stringAvatar(name) {
@@ -45,7 +45,7 @@ function stringAvatar(name) {
 function Sidebar() {
   const location = useLocation();
   const [cadastrosOpen, setCadastrosOpen] = useState(true);
-  const [planoContasOpen, setPlanoContasOpen] = useState(true); // aberto por padrão
+  const [planoContasOpen, setPlanoContasOpen] = useState(true);
 
   const handleLogout = () => {
     console.log('Logout clicado');
@@ -57,19 +57,13 @@ function Sidebar() {
       <h2>SAAS AGRO LIGHT</h2>
       <ul>
         <li>
-          <Link
-            to="/dashboard"
-            className={location.pathname === '/dashboard' ? 'active sidebar-link' : 'sidebar-link'}
-          >
+          <Link to="/dashboard" className={location.pathname === '/dashboard' ? 'active sidebar-link' : 'sidebar-link'}>
             <FiGrid className="icon" />
             Dashboard
           </Link>
         </li>
 
-        <li
-          className="menu-item"
-          onClick={() => setCadastrosOpen(!cadastrosOpen)}
-        >
+        <li className="menu-item" onClick={() => setCadastrosOpen(!cadastrosOpen)}>
           <FiUsers className="icon" />
           Cadastros {cadastrosOpen ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
         </li>
@@ -99,10 +93,7 @@ function Sidebar() {
           </ul>
         )}
 
-        <li
-          className="menu-item"
-          onClick={() => setPlanoContasOpen(!planoContasOpen)}
-        >
+        <li className="menu-item" onClick={() => setPlanoContasOpen(!planoContasOpen)}>
           <FiDollarSign className="icon" />
           Plano de Contas {planoContasOpen ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
         </li>
@@ -142,16 +133,7 @@ function Sidebar() {
         </li>
       </ul>
 
-      <div
-        className="user-footer"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginTop: 'auto',
-          paddingTop: 20
-        }}
-      >
+      <div className="user-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <Avatar {...stringAvatar('João Silva')} />
           <div style={{ lineHeight: '1.2' }}>
@@ -159,12 +141,7 @@ function Sidebar() {
             <div style={{ fontSize: 12, color: '#888' }}>Admin</div>
           </div>
         </div>
-        <button onClick={handleLogout} style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          padding: 4
-        }}>
+        <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
           <FiLogOut size={18} color="#888" />
         </button>
       </div>
@@ -173,7 +150,3 @@ function Sidebar() {
 }
 
 export default Sidebar;
-
-
-
-
