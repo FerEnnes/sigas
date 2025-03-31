@@ -75,6 +75,30 @@ function PropertyForm() {
     }
   };
 
+  const handleCNPJBlur = async () => {
+    const cnpj = form.cpf.replace(/\D/g, '');
+    if (cnpj.length !== 14) return;
+
+    try {
+      const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
+      if (!res.ok) throw new Error('CNPJ não encontrado');
+
+      const data = await res.json();
+
+      setForm((prev) => ({
+        ...prev,
+        name: data.razao_social || prev.name,
+        rua: data.logradouro || prev.rua,
+        bairro: data.bairro || prev.bairro,
+        cidade: data.municipio || prev.cidade,
+        estado: data.uf || prev.estado,
+        cep: data.cep?.replace(/\D/g, '') || prev.cep
+      }));
+    } catch (err) {
+      console.error('Erro ao buscar CNPJ:', err);
+    }
+  };
+
   const validateCPF = (cpf) => {
     cpf = cpf.replace(/[^\d]+/g, '');
     if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
@@ -166,7 +190,7 @@ function PropertyForm() {
       <h3>{isEdit ? 'Editar propriedade' : 'Cadastrar propriedades'}</h3>
       <form className="form-section" onSubmit={handleSubmit}>
         {renderInput('name', 'Nome (descrição)')}
-        {renderInput('cpf', 'CPF / CNPJ')}
+        {renderInput('cpf', 'CPF / CNPJ', handleCNPJBlur)}
         {renderInput('email', 'Email')}
 
         <div className="input-row">
@@ -200,4 +224,5 @@ function PropertyForm() {
 }
 
 export default PropertyForm;
+
 

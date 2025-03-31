@@ -74,6 +74,30 @@ function SupplierForm() {
     }
   };
 
+  const handleCNPJBlur = async () => {
+    const cnpj = form.cpf.replace(/\D/g, '');
+    if (cnpj.length !== 14) return;
+
+    try {
+      const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
+      if (!res.ok) throw new Error('CNPJ não encontrado');
+
+      const data = await res.json();
+
+      setForm((prev) => ({
+        ...prev,
+        name: data.razao_social || prev.name,
+        rua: data.logradouro || prev.rua,
+        bairro: data.bairro || prev.bairro,
+        cidade: data.municipio || prev.cidade,
+        estado: data.uf || prev.estado,
+        cep: data.cep?.replace(/\D/g, '') || prev.cep
+      }));
+    } catch (err) {
+      console.error('Erro ao buscar CNPJ:', err);
+    }
+  };
+
   const validateCPF = (cpf) => {
     cpf = cpf.replace(/[^\d]+/g, '');
     if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
@@ -144,7 +168,6 @@ function SupplierForm() {
     alert(isEdit ? 'Fornecedor editado!' : 'Fornecedor cadastrado!');
   };
 
-  // Mantemos asterisco no canto superior direito
   const renderInput = (name, label, onBlur) => (
     <div className="required-wrapper">
       <label htmlFor={name}>{label}</label>
@@ -165,16 +188,13 @@ function SupplierForm() {
       <h3>{isEdit ? 'Editar fornecedor' : 'Cadastrar fornecedores'}</h3>
       <form className="form-section" onSubmit={handleSubmit}>
         {renderInput('name', 'Nome Completo')}
-        {renderInput('cpf', 'CPF / CNPJ')}
+        {renderInput('cpf', 'CPF / CNPJ', handleCNPJBlur)}
         {renderInput('email', 'Email')}
 
-        {/* Telefone e CEP na mesma linha */}
         <div className="input-row">
-          {/* Telefone com flex maior (classe .telefone-field) */}
           <div className="telefone-field">
             {renderInput('telefone', 'Telefone')}
           </div>
-          {/* CEP com flex menor (classe .cep-field) */}
           <div className="cep-field">
             {renderInput('cep', 'CEP', handleCepBlur)}
           </div>
