@@ -1,6 +1,6 @@
 # 🌿 SaaS Agro Light
 
-Sistema web para gestão agrícola com painel financeiro, calendário inteligente e organização de propriedades e fornecedores.
+Sistema web para gestão agrícola de pequenas propriedades e agricultura familiar com painel financeiro, calendário inteligente e organização de propriedades e fornecedores.
 
 ![Preview](https://via.placeholder.com/900x400.png?text=SaaS+Agro+Light+Preview)
 
