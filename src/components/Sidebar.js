@@ -17,7 +17,9 @@ import {
   FiSettings,
   FiChevronDown,
   FiChevronUp,
-  FiGrid
+  FiGrid,
+  FiClipboard,
+  FiFileText, // ✅ Novo ícone adicionado
 } from 'react-icons/fi';
 
 function stringAvatar(name) {
@@ -43,7 +45,7 @@ function stringAvatar(name) {
 function Sidebar() {
   const location = useLocation();
   const [cadastrosOpen, setCadastrosOpen] = useState(true);
-  const [planoContasOpen, setPlanoContasOpen] = useState(false); // submenu novo
+  const [planoContasOpen, setPlanoContasOpen] = useState(true); // aberto por padrão
 
   const handleLogout = () => {
     console.log('Logout clicado');
@@ -109,12 +111,12 @@ function Sidebar() {
           <ul className="submenu">
             <li>
               <Link to="/plano/simplificado" className={location.pathname === '/plano/simplificado' ? 'active submenu-link' : 'submenu-link'}>
-                Simplificado
+                <FiClipboard className="icon" /> Simplificado
               </Link>
             </li>
             <li>
               <Link to="/plano/detalhado" className={location.pathname === '/plano/detalhado' ? 'active submenu-link' : 'submenu-link'}>
-                Detalhado
+                <FiFileText className="icon" /> Detalhado
               </Link>
             </li>
           </ul>
@@ -171,5 +173,7 @@ function Sidebar() {
 }
 
 export default Sidebar;
+
+
 
 
