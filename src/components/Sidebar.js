@@ -43,10 +43,10 @@ function stringAvatar(name) {
 function Sidebar() {
   const location = useLocation();
   const [cadastrosOpen, setCadastrosOpen] = useState(true);
+  const [planoContasOpen, setPlanoContasOpen] = useState(false); // submenu novo
 
   const handleLogout = () => {
     console.log('Logout clicado');
-    // limpar localStorage, redirecionar, etc.
   };
 
   return (
@@ -75,46 +75,51 @@ function Sidebar() {
         {cadastrosOpen && (
           <ul className="submenu">
             <li>
-              <Link
-                to="/usuarios"
-                className={location.pathname === '/usuarios' ? 'active submenu-link' : 'submenu-link'}
-              >
+              <Link to="/usuarios" className={location.pathname === '/usuarios' ? 'active submenu-link' : 'submenu-link'}>
                 <FiUser className="icon" /> Usuários
               </Link>
             </li>
             <li>
-              <Link
-                to="/clientes"
-                className={location.pathname === '/clientes' ? 'active submenu-link' : 'submenu-link'}
-              >
+              <Link to="/clientes" className={location.pathname === '/clientes' ? 'active submenu-link' : 'submenu-link'}>
                 <FiUserCheck className="icon" /> Clientes
               </Link>
             </li>
             <li>
-              <Link
-                to="/fornecedores"
-                className={location.pathname === '/fornecedores' ? 'active submenu-link' : 'submenu-link'}
-              >
+              <Link to="/fornecedores" className={location.pathname === '/fornecedores' ? 'active submenu-link' : 'submenu-link'}>
                 <FiTruck className="icon" /> Fornecedores
               </Link>
             </li>
             <li>
-              <Link
-                to="/propriedades"
-                className={location.pathname === '/propriedades' ? 'active submenu-link' : 'submenu-link'}
-              >
+              <Link to="/propriedades" className={location.pathname === '/propriedades' ? 'active submenu-link' : 'submenu-link'}>
                 <FiHome className="icon" /> Propriedades
               </Link>
             </li>
           </ul>
         )}
 
-        <li>
-          <Link to="/contas" className="sidebar-link">
-            <FiDollarSign className="icon" />
-            Contas
-          </Link>
+        <li
+          className="menu-item"
+          onClick={() => setPlanoContasOpen(!planoContasOpen)}
+        >
+          <FiDollarSign className="icon" />
+          Plano de Contas {planoContasOpen ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
         </li>
+
+        {planoContasOpen && (
+          <ul className="submenu">
+            <li>
+              <Link to="/plano/simplificado" className={location.pathname === '/plano/simplificado' ? 'active submenu-link' : 'submenu-link'}>
+                Simplificado
+              </Link>
+            </li>
+            <li>
+              <Link to="/plano/detalhado" className={location.pathname === '/plano/detalhado' ? 'active submenu-link' : 'submenu-link'}>
+                Detalhado
+              </Link>
+            </li>
+          </ul>
+        )}
+
         <li>
           <Link to="/notificacoes" className="sidebar-link">
             <FiBell className="icon" />
@@ -135,7 +140,6 @@ function Sidebar() {
         </li>
       </ul>
 
-      {/* Rodapé do usuário com logout */}
       <div
         className="user-footer"
         style={{

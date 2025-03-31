@@ -5,7 +5,9 @@ import SupplierFormPage from './pages/SupplierFormPage';
 import PropertyListPage from './pages/PropertyListPage';
 import PropertyFormPage from './pages/PropertyFormPage';
 import CalendarioPage from './pages/CalendarioPage';
-import NotFoundPage from './pages/NotFoundPage'; 
+import PlanoSimplificadoPage from './pages/PlanoSimplificadoPage';
+import PlanoDetalhadoPage from './pages/PlanoDetalhadoPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 import './App.css';
 
@@ -26,6 +28,10 @@ function App() {
         {/* Calendário */}
         <Route path="/calendario" element={<CalendarioPage />} />
 
+        {/* Plano de Contas */}
+        <Route path="/plano/simplificado" element={<PlanoSimplificadoPage />} />
+        <Route path="/plano/detalhado" element={<PlanoDetalhadoPage />} />
+
         {/* 404 */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
@@ -34,6 +40,7 @@ function App() {
 }
 
 export default App;
+
 
 
 
