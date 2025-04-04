@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/1453d1a0-a96e-4cc3-880d-6a9723bd1197)# 🌿 SaaS Agro Light
+🌿 SaaS Agro Light
 
 Sistema web para gestão agrícola de pequenas propriedades e agricultura familiar com painel financeiro, calendário inteligente e organização de propriedades e fornecedores.
 
