@@ -45,7 +45,7 @@ function stringAvatar(name) {
 function Sidebar() {
   const location = useLocation();
   const [cadastrosOpen, setCadastrosOpen] = useState(true);
-  const [planoContasOpen, setPlanoContasOpen] = useState(true);
+  const [contasOpen, setContasOpen] = useState(true);
 
   const handleLogout = () => {
     console.log('Logout clicado');
@@ -90,24 +90,29 @@ function Sidebar() {
                 <FiHome className="icon" /> Propriedades
               </Link>
             </li>
+            <li>
+              <Link to="/plano-contas" className={location.pathname === '/plano-contas' ? 'active submenu-link' : 'submenu-link'}>
+                <FiDollarSign className="icon" /> Plano de Contas
+              </Link>
+            </li>
           </ul>
         )}
 
-        <li className="menu-item" onClick={() => setPlanoContasOpen(!planoContasOpen)}>
+        <li className="menu-item" onClick={() => setContasOpen(!contasOpen)}>
           <FiDollarSign className="icon" />
-          Plano de Contas {planoContasOpen ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
+          Contas {contasOpen ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
         </li>
 
-        {planoContasOpen && (
+        {contasOpen && (
           <ul className="submenu">
             <li>
-              <Link to="/plano/simplificado" className={location.pathname === '/plano/simplificado' ? 'active submenu-link' : 'submenu-link'}>
-                <FiClipboard className="icon" /> Simplificado
+              <Link to="/contas/pagar" className={location.pathname === '/contas/pagar' ? 'active submenu-link' : 'submenu-link'}>
+                <FiClipboard className="icon" /> A pagar
               </Link>
             </li>
             <li>
-              <Link to="/plano/detalhado" className={location.pathname === '/plano/detalhado' ? 'active submenu-link' : 'submenu-link'}>
-                <FiFileText className="icon" /> Detalhado
+              <Link to="/contas/receber" className={location.pathname === '/contas/receber' ? 'active submenu-link' : 'submenu-link'}>
+                <FiFileText className="icon" /> A receber
               </Link>
             </li>
           </ul>
@@ -150,3 +155,4 @@ function Sidebar() {
 }
 
 export default Sidebar;
+
