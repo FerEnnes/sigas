@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-
 import SupplierListPage from './pages/SupplierListPage';
 import SupplierFormPage from './pages/SupplierFormPage';
 import PropertyListPage from './pages/PropertyListPage';
@@ -10,6 +9,8 @@ import CalendarioPage from './pages/CalendarioPage';
 import PlanoSimplificadoPage from './pages/PlanoSimplificadoPage';
 import PlanoDetalhadoPage from './pages/PlanoDetalhadoPage';
 import NotFoundPage from './pages/NotFoundPage';
+import UsuarioListPage from './pages/UsuarioListPage';       // ✅
+import UsuarioFormPage from './pages/UsuarioFormPage';       // ✅
 
 import './App.css';
 
@@ -18,6 +19,10 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Navigate to="/fornecedores" />} />
+
+        {/* Usuários */}
+        <Route path="/usuarios" element={<UsuarioListPage />} />
+        <Route path="/usuarios/cadastrar" element={<UsuarioFormPage />} /> {/* ✅ nova rota */}
 
         {/* Fornecedores */}
         <Route path="/fornecedores" element={<SupplierListPage />} />
@@ -46,4 +51,3 @@ function App() {
 }
 
 export default App;
-

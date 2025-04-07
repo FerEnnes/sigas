@@ -22,6 +22,7 @@ import {
   FiFileText,
 } from 'react-icons/fi';
 
+// Utilitário para gerar avatar com iniciais
 function stringAvatar(name) {
   const initials = name
     .split(' ')
@@ -47,8 +48,14 @@ function Sidebar() {
   const [cadastrosOpen, setCadastrosOpen] = useState(true);
   const [contasOpen, setContasOpen] = useState(true);
 
+  //  Pegando o tipo e nome do usuário autenticado
+  const tipoUsuario = localStorage.getItem('tipoUsuario'); // "1" = admin
+  const nomeUsuario = localStorage.getItem('nome') || 'Usuário';
+
   const handleLogout = () => {
-    console.log('Logout clicado');
+    // Aqui limpará dados do login (integração com backend futuramente)
+    localStorage.clear();
+    window.location.href = '/login';
   };
 
   return (
@@ -63,6 +70,7 @@ function Sidebar() {
           </Link>
         </li>
 
+        {/* Menu de Cadastros */}
         <li className="menu-item" onClick={() => setCadastrosOpen(!cadastrosOpen)}>
           <FiUsers className="icon" />
           Cadastros {cadastrosOpen ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
@@ -70,11 +78,14 @@ function Sidebar() {
 
         {cadastrosOpen && (
           <ul className="submenu">
-            <li>
-              <Link to="/usuarios" className={location.pathname === '/usuarios' ? 'active submenu-link' : 'submenu-link'}>
-                <FiUser className="icon" /> Usuários
-              </Link>
-            </li>
+            {/*  Só mostra "Usuários" para administradores */}
+            {tipoUsuario === '1' && (
+              <li>
+                <Link to="/usuarios" className={location.pathname === '/usuarios' ? 'active submenu-link' : 'submenu-link'}>
+                  <FiUser className="icon" /> Usuários
+                </Link>
+              </li>
+            )}
             <li>
               <Link to="/clientes" className={location.pathname === '/clientes' ? 'active submenu-link' : 'submenu-link'}>
                 <FiUserCheck className="icon" /> Clientes
@@ -98,6 +109,7 @@ function Sidebar() {
           </ul>
         )}
 
+        {/* Menu de Contas */}
         <li className="menu-item" onClick={() => setContasOpen(!contasOpen)}>
           <FiDollarSign className="icon" />
           Contas {contasOpen ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
@@ -118,6 +130,7 @@ function Sidebar() {
           </ul>
         )}
 
+        {/* Outros menus */}
         <li>
           <Link to="/notificacoes" className="sidebar-link">
             <FiBell className="icon" />
@@ -138,12 +151,15 @@ function Sidebar() {
         </li>
       </ul>
 
+      {/* Rodapé com usuário logado */}
       <div className="user-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Avatar {...stringAvatar('João Silva')} />
+          <Avatar {...stringAvatar(nomeUsuario)} />
           <div style={{ lineHeight: '1.2' }}>
-            <strong style={{ fontSize: 14 }}>João Silva</strong>
-            <div style={{ fontSize: 12, color: '#888' }}>Admin</div>
+            <strong style={{ fontSize: 14 }}>{nomeUsuario}</strong>
+            <div style={{ fontSize: 12, color: '#888' }}>
+              {tipoUsuario === '1' ? 'Admin' : 'Usuário comum'}
+            </div>
           </div>
         </div>
         <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
@@ -155,4 +171,3 @@ function Sidebar() {
 }
 
 export default Sidebar;
-

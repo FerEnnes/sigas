@@ -114,3 +114,54 @@ button {
 .form-sidebar .close-button:hover {
   background: #f1b0b7;
 }
+.form-sidebar {
+  width: 320px; /* era 400px */
+  padding: 24px;
+  background-color: #fafafa;
+  border-left: 1px solid #ddd;
+  box-sizing: border-box;
+  font-family: 'Nunito', Helvetica, sans-serif;
+  font-size: 14px; /* fonte menor */
+  color: #333;
+}
+
+.form-sidebar h3 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.form-sidebar h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.form-sidebar p {
+  margin: 4px 0;
+  line-height: 1.4;
+}
+.usuario-details {
+  font-size: 15px;
+  color: #333;
+  line-height: 1.6;
+}
+
+.usuario-details h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #222;
+}
+
+.usuario-details h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 12px 0 10px;
+  color: #444;
+}
+
+.usuario-details p {
+  margin: 4px 0;
+}
