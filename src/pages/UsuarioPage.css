@@ -1,7 +1,7 @@
 .usuario-details {
   font-family: 'Nunito', Helvetica, sans-serif;
   font-size: 15px;
-  color: #333;
+  color: #000000;
   line-height: 1.6;
   padding: 30px;
   background-color: #f9f9f9;
@@ -14,7 +14,7 @@
   font-size: 22px;
   font-weight: 700;
   margin-bottom: 8px;
-  color: #222;
+  color: #000000;
 }
 
 .usuario-details h4 {
@@ -22,7 +22,7 @@
   font-weight: 600;
   margin-top: 20px;
   margin-bottom: 10px;
-  color: #444;
+  color: #000000;
 }
 
 .usuario-details p {
