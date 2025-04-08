@@ -1,16 +1,26 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
+// Pages
 import SupplierListPage from './pages/SupplierListPage';
 import SupplierFormPage from './pages/SupplierFormPage';
+
 import PropertyListPage from './pages/PropertyListPage';
 import PropertyFormPage from './pages/PropertyFormPage';
+
 import ClienteListPage from './pages/ClienteListPage';
 import ClienteFormPage from './pages/ClienteFormPage';
+
 import CalendarioPage from './pages/CalendarioPage';
-import PlanoSimplificadoPage from './pages/PlanoSimplificadoPage';
-import PlanoDetalhadoPage from './pages/PlanoDetalhadoPage';
+
 import NotFoundPage from './pages/NotFoundPage';
-import UsuarioListPage from './pages/UsuarioListPage';       // ✅
-import UsuarioFormPage from './pages/UsuarioFormPage';       // ✅
+
+import UsuarioListPage from './pages/UsuarioListPage';
+import UsuarioFormPage from './pages/UsuarioFormPage';
+
+import PlanoContasPage from './pages/PlanoContasPage'; // ✅ nova rota unificada
+
+import ContasPagarPage from './pages/ContasPagarPage';     // ✅ novo
+import ContasReceberPage from './pages/ContasReceberPage'; // ✅ novo
 
 import './App.css';
 
@@ -18,11 +28,16 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Redirecionamento inicial */}
         <Route path="/" element={<Navigate to="/fornecedores" />} />
 
         {/* Usuários */}
         <Route path="/usuarios" element={<UsuarioListPage />} />
-        <Route path="/usuarios/cadastrar" element={<UsuarioFormPage />} /> {/* ✅ nova rota */}
+        <Route path="/usuarios/cadastrar" element={<UsuarioFormPage />} />
+
+        {/* Clientes */}
+        <Route path="/clientes" element={<ClienteListPage />} />
+        <Route path="/clientes/cadastrar" element={<ClienteFormPage />} />
 
         {/* Fornecedores */}
         <Route path="/fornecedores" element={<SupplierListPage />} />
@@ -32,16 +47,15 @@ function App() {
         <Route path="/propriedades" element={<PropertyListPage />} />
         <Route path="/propriedades/cadastrar" element={<PropertyFormPage />} />
 
-        {/* Clientes */}
-        <Route path="/clientes" element={<ClienteListPage />} />
-        <Route path="/clientes/cadastrar" element={<ClienteFormPage />} />
+        {/* Plano de Contas */}
+        <Route path="/plano-contas" element={<PlanoContasPage />} />
+
+        {/* Contas */}
+        <Route path="/contas/pagar" element={<ContasPagarPage />} />
+        <Route path="/contas/receber" element={<ContasReceberPage />} />
 
         {/* Calendário */}
         <Route path="/calendario" element={<CalendarioPage />} />
-
-        {/* Plano de Contas */}
-        <Route path="/plano/simplificado" element={<PlanoSimplificadoPage />} />
-        <Route path="/plano/detalhado" element={<PlanoDetalhadoPage />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFoundPage />} />

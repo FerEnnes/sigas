@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import './SupplierForm.css'; // Mantido para reaproveitar estilos
+import './SupplierForm.css'; 
 
 function ClienteForm() {
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
@@ -23,6 +23,7 @@ function ClienteForm() {
 
   useEffect(() => {
     if (isEdit) {
+      // [BACKEND] GET: Buscar dados do cliente para edição (via ID) no Django
       setForm({
         name: params.get('name') || '',
         email: params.get('email') || '',
@@ -150,6 +151,13 @@ function ClienteForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validarCampos()) return;
+
+    if (isEdit) {
+      // [BACKEND] PUT: Atualizar cliente no backend via Django
+    } else {
+      // [BACKEND] POST: Enviar novo cliente para o backend via Django
+    }
+
     alert(isEdit ? 'Cliente editado!' : 'Cliente cadastrado!');
   };
 

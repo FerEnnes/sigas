@@ -1,6 +1,7 @@
 import React from 'react';
 import './SupplierDetails.css'; 
 
+// [BACKEND] GET: Os dados da propriedade serão buscados via ID no backend Django futuramente
 function PropertyDetails({ property, onClose, onEdit }) {
   return (
     <div className="details-panel">
@@ -30,6 +31,8 @@ function PropertyDetails({ property, onClose, onEdit }) {
 }
 
 export default PropertyDetails;
+
+
 
 
 

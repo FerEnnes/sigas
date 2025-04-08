@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import Sidebar from '../components/Sidebar';
 import PropertyList from '../components/PropertyList';
 
+// [BACKEND] Página de listagem de propriedades — integrará com API Django
 function PropertyListPage() {
   return (
     <div className="app">

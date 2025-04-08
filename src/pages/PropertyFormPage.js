@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import Sidebar from '../components/Sidebar';
 import PropertyForm from '../components/PropertyForm';
 
+// [BACKEND] Página de formulário de propriedade para criação ou edição via query param
 function PropertyFormPage() {
   const search = window.location.search;
   const isEdit = search.includes('edit=true');
@@ -23,4 +24,5 @@ function PropertyFormPage() {
 }
 
 export default PropertyFormPage;
+
 

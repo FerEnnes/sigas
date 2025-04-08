@@ -9,6 +9,7 @@ function SupplierList() {
   const [showForm, setShowForm] = useState(false);
   const navigate = useNavigate();
 
+  // [BACKEND] GET: Substituir por dados vindos da API do Django
   const suppliers = [
     {
       name: 'John Deo',
@@ -75,6 +76,7 @@ function SupplierList() {
           supplier={selectedSupplier}
           onClose={() => setSelectedSupplier(null)}
           onEdit={(s) => {
+            // [BACKEND] Editar fornecedor via formulário com dados carregados da API
             const query = new URLSearchParams({ ...s, edit: 'true' }).toString();
             navigate(`/fornecedores/cadastrar?${query}`);
           }}
@@ -93,7 +95,3 @@ function SupplierList() {
 }
 
 export default SupplierList;
-
-
-
-

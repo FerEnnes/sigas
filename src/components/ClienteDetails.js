@@ -1,6 +1,7 @@
 import React from 'react';
 import './SupplierDetails.css'; 
 
+// [BACKEND] GET: Os dados deste cliente deverão ser buscados via ID no Django futuramente
 function ClienteDetails({ client, onClose, onEdit }) {
   return (
     <div className="details-panel">
@@ -30,4 +31,5 @@ function ClienteDetails({ client, onClose, onEdit }) {
 }
 
 export default ClienteDetails;
+
 

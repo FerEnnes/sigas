@@ -1,52 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SupplierList.css';
 import UsuarioForm from './UsuarioForm';
 
 function UsuarioList() {
-  const [usuarios, setUsuarios] = useState([
-    {
-      id: 1,
-      nome: 'Maria Silva',
-      email: 'maria@email.com',
-      tipoUsuario: 1,
-      telefone: '(11) 99999-0000',
-      ativo: true,
-      cpf: '123.456.789-00',
-      rua: 'Rua das Flores',
-      numero: '100',
-      bairro: 'Centro',
-      cidade: 'São Paulo',
-      estado: 'SP',
-      cep: '01000-000',
-      complemento: ''
-    },
-    {
-      id: 2,
-      nome: 'João Souza',
-      email: 'joao@email.com',
-      tipoUsuario: 2,
-      telefone: '(11) 91234-5678',
-      ativo: false,
-      cpf: '987.654.321-00',
-      rua: '',
-      numero: '',
-      bairro: '',
-      cidade: '',
-      estado: '',
-      cep: '',
-      complemento: ''
-    }
-  ]);
-
+  const [usuarios, setUsuarios] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const navigate = useNavigate();
 
-  const handleInativar = (id) => {
-    setUsuarios((prev) =>
-      prev.map((u) => (u.id === id ? { ...u, ativo: false } : u))
-    );
+  useEffect(() => {
+    async function fetchUsuarios() {
+      try {
+        const res = await fetch('/api/usuarios'); // 🔗 Backend real
+        if (!res.ok) throw new Error('Sem conexão');
+        const data = await res.json();
+        setUsuarios(data);
+      } catch (error) {
+        console.warn('Usando dados mockados, backend indisponível');
+
+        // ✅ Fallback para testes locais
+        setUsuarios([
+          {
+            id: 1,
+            nome: 'Maria Silva',
+            email: 'maria@email.com',
+            tipoUsuario: 1,
+            telefone: '(11) 99999-0000',
+            ativo: true,
+            cpf: '123.456.789-00',
+            rua: 'Rua das Flores',
+            numero: '100',
+            bairro: 'Centro',
+            cidade: 'São Paulo',
+            estado: 'SP',
+            cep: '01000-000',
+            complemento: ''
+          },
+          {
+            id: 2,
+            nome: 'João Souza',
+            email: 'joao@email.com',
+            tipoUsuario: 2,
+            telefone: '(11) 91234-5678',
+            ativo: false,
+            cpf: '987.654.321-00',
+            rua: '',
+            numero: '',
+            bairro: '',
+            cidade: '',
+            estado: '',
+            cep: '',
+            complemento: ''
+          }
+        ]);
+      }
+    }
+
+    fetchUsuarios();
+  }, []);
+
+  const handleInativar = async (id) => {
+    try {
+      await fetch(`/api/usuarios/${id}/inativar`, { method: 'PUT' }); // 🔗 Backend
+      setUsuarios(prev => prev.map(u => (u.id === id ? { ...u, ativo: false } : u)));
+    } catch (err) {
+      console.error('Erro ao inativar usuário:', err);
+    }
   };
 
   return (
@@ -102,7 +122,7 @@ function UsuarioList() {
         </table>
       </div>
 
-      {/* Sidebar de visualização com estilo refinado */}
+      {/* Detalhes do usuário selecionado */}
       {selectedUser && (
         <div className="form-sidebar usuario-details">
           <button className="close-button" onClick={() => setSelectedUser(null)}>×</button>
@@ -128,7 +148,6 @@ function UsuarioList() {
         </div>
       )}
 
-      {/* Sidebar do formulário */}
       {showForm && (
         <div className="form-sidebar">
           <button className="close-button" onClick={() => setShowForm(false)}>×</button>
@@ -141,8 +160,3 @@ function UsuarioList() {
 }
 
 export default UsuarioList;
-
-
-
-
-

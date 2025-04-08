@@ -7,20 +7,21 @@ function PropertyList() {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
+  // [BACKEND] GET: Esta lista virá do backend via Django futuramente
   const properties = [
-      {
-        name: 'Fazenda Boa Vista',
-        email: 'fazenda@example.com',
-        cpf: '123.456.789-00',
-        telefone: '(49) 99999-0000',
-        rua: 'Estrada Rural',
-        numero: '100',
-        bairro: 'Zona Sul',
-        cidade: 'Chapecó',
-        estado: 'SC',
-        cep: '89800-000',
-        complemento: 'Sítio próximo ao rio'
-      },
+    {
+      name: 'Fazenda Boa Vista',
+      email: 'fazenda@example.com',
+      cpf: '123.456.789-00',
+      telefone: '(49) 99999-0000',
+      rua: 'Estrada Rural',
+      numero: '100',
+      bairro: 'Zona Sul',
+      cidade: 'Chapecó',
+      estado: 'SC',
+      cep: '89800-000',
+      complemento: 'Sítio próximo ao rio'
+    },
     {
       name: 'Sítio Alegria',
       email: 'fazenda@example.com',
@@ -74,7 +75,7 @@ function PropertyList() {
           onClose={() => setSelectedProperty(null)}
           onEdit={(p) => {
             const query = new URLSearchParams({ ...p, edit: 'true' }).toString();
-            window.location.href = `/propriedades/cadastrar?${query}`; // ✅ rota corrigida
+            window.location.href = `/propriedades/cadastrar?${query}`;
           }}
         />
       )}
@@ -91,4 +92,3 @@ function PropertyList() {
 }
 
 export default PropertyList;
-

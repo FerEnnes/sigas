@@ -1,3 +1,5 @@
+// [BACKEND] Aqui futuramente vamos buscar e persistir os eventos usando Django + Postgres
+
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
@@ -93,11 +95,13 @@ function CalendarioPage() {
     };
 
     if (editando) {
+      // [BACKEND] PUT: Atualizar evento existente no backend
       const atualizados = eventos.map((ev) =>
         ev === eventoSelecionado ? novo : ev
       );
       setEventos(atualizados);
     } else {
+      // [BACKEND] POST: Criar novo evento no backend
       setEventos([...eventos, novo]);
     }
 
@@ -105,6 +109,7 @@ function CalendarioPage() {
   };
 
   const excluirEvento = () => {
+    // [BACKEND] DELETE: Remover evento do backend
     setEventos(eventos.filter((ev) => ev !== eventoSelecionado));
     fecharModal();
   };
@@ -255,10 +260,3 @@ function CalendarioPage() {
 }
 
 export default CalendarioPage;
-
-
-
-
-
-
-

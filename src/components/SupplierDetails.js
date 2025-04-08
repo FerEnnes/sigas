@@ -30,3 +30,4 @@ function SupplierDetails({ supplier, onClose, onEdit }) {
 }
 
 export default SupplierDetails;
+

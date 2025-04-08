@@ -22,7 +22,7 @@ import {
   FiFileText,
 } from 'react-icons/fi';
 
-// Utilitário para gerar avatar com iniciais
+// Gera avatar com iniciais do nome
 function stringAvatar(name) {
   const initials = name
     .split(' ')
@@ -48,12 +48,10 @@ function Sidebar() {
   const [cadastrosOpen, setCadastrosOpen] = useState(true);
   const [contasOpen, setContasOpen] = useState(true);
 
-  //  Pegando o tipo e nome do usuário autenticado
   const tipoUsuario = localStorage.getItem('tipoUsuario'); // "1" = admin
   const nomeUsuario = localStorage.getItem('nome') || 'Usuário';
 
   const handleLogout = () => {
-    // Aqui limpará dados do login (integração com backend futuramente)
     localStorage.clear();
     window.location.href = '/login';
   };
@@ -70,7 +68,7 @@ function Sidebar() {
           </Link>
         </li>
 
-        {/* Menu de Cadastros */}
+        {/* Cadastros */}
         <li className="menu-item" onClick={() => setCadastrosOpen(!cadastrosOpen)}>
           <FiUsers className="icon" />
           Cadastros {cadastrosOpen ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
@@ -78,7 +76,7 @@ function Sidebar() {
 
         {cadastrosOpen && (
           <ul className="submenu">
-            {/*  Só mostra "Usuários" para administradores */}
+            {/* Apenas para admin */}
             {tipoUsuario === '1' && (
               <li>
                 <Link to="/usuarios" className={location.pathname === '/usuarios' ? 'active submenu-link' : 'submenu-link'}>
@@ -101,15 +99,18 @@ function Sidebar() {
                 <FiHome className="icon" /> Propriedades
               </Link>
             </li>
-            <li>
-              <Link to="/plano-contas" className={location.pathname === '/plano-contas' ? 'active submenu-link' : 'submenu-link'}>
-                <FiDollarSign className="icon" /> Plano de Contas
-              </Link>
-            </li>
+            {/* Apenas para admin */}
+            {tipoUsuario === '1' && (
+              <li>
+                <Link to="/plano-contas" className={location.pathname === '/plano-contas' ? 'active submenu-link' : 'submenu-link'}>
+                  <FiDollarSign className="icon" /> Plano de Contas
+                </Link>
+              </li>
+            )}
           </ul>
         )}
 
-        {/* Menu de Contas */}
+        {/* Contas */}
         <li className="menu-item" onClick={() => setContasOpen(!contasOpen)}>
           <FiDollarSign className="icon" />
           Contas {contasOpen ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
@@ -130,7 +131,6 @@ function Sidebar() {
           </ul>
         )}
 
-        {/* Outros menus */}
         <li>
           <Link to="/notificacoes" className="sidebar-link">
             <FiBell className="icon" />

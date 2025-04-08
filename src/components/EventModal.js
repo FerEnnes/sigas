@@ -17,6 +17,7 @@ import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
+// [BACKEND] Modal de criação/edição de evento — integração futura via onSave e onDelete
 function EventModal({ open, evento, onChange, onClose, onSave, onDelete, editando }) {
   const handleInput = (field) => (e) => {
     onChange({ ...evento, [field]: e.target.value });
@@ -50,8 +51,6 @@ function EventModal({ open, evento, onChange, onClose, onSave, onDelete, editand
           {editando ? 'Editar Evento' : 'Criar Evento'} {emoji}
         </DialogTitle>
         <DialogContent>
-
-          {/* Tipo de evento */}
           <Box sx={{ mt: 1, mb: 2 }}>
             <ToggleButtonGroup
               value={evento.tipo || 'evento'}
@@ -66,7 +65,6 @@ function EventModal({ open, evento, onChange, onClose, onSave, onDelete, editand
             </ToggleButtonGroup>
           </Box>
 
-          {/* Título */}
           <TextField
             fullWidth
             label="Título"
@@ -75,7 +73,6 @@ function EventModal({ open, evento, onChange, onClose, onSave, onDelete, editand
             onChange={handleInput('title')}
           />
 
-          {/* Início */}
           <DateTimePicker
             label="Início"
             value={evento.start}
@@ -83,7 +80,6 @@ function EventModal({ open, evento, onChange, onClose, onSave, onDelete, editand
             renderInput={(params) => <TextField fullWidth margin="dense" {...params} />}
           />
 
-          {/* Fim - visível se não for lembrete */}
           {evento.tipo !== 'lembrete' && (
             <DateTimePicker
               label="Fim"
@@ -93,7 +89,6 @@ function EventModal({ open, evento, onChange, onClose, onSave, onDelete, editand
             />
           )}
 
-          {/* Local */}
           <TextField
             fullWidth
             label="Local"
@@ -102,7 +97,6 @@ function EventModal({ open, evento, onChange, onClose, onSave, onDelete, editand
             onChange={handleInput('local')}
           />
 
-          {/* Participantes */}
           <TextField
             fullWidth
             label="Participantes (e-mails separados por vírgula)"
@@ -111,7 +105,6 @@ function EventModal({ open, evento, onChange, onClose, onSave, onDelete, editand
             onChange={handleInput('participantes')}
           />
 
-          {/* Checkbox "Concluído" apenas se for tarefa */}
           {evento.tipo === 'tarefa' && (
             <FormControlLabel
               control={

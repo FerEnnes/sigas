@@ -23,6 +23,7 @@ function SupplierForm() {
 
   useEffect(() => {
     if (isEdit) {
+      // [BACKEND] GET: Buscar dados do fornecedor para edição via Django
       setForm({
         name: params.get('name') || '',
         email: params.get('email') || '',
@@ -56,12 +57,10 @@ function SupplierForm() {
   const handleCepBlur = async () => {
     const cep = form.cep.replace(/\D/g, '');
     if (cep.length !== 8) return;
-
     try {
       const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
       const data = await res.json();
       if (data.erro) return;
-
       setForm((prev) => ({
         ...prev,
         rua: data.logradouro,
@@ -77,13 +76,10 @@ function SupplierForm() {
   const handleCNPJBlur = async () => {
     const cnpj = form.cpf.replace(/\D/g, '');
     if (cnpj.length !== 14) return;
-
     try {
       const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
       if (!res.ok) throw new Error('CNPJ não encontrado');
-
       const data = await res.json();
-
       setForm((prev) => ({
         ...prev,
         name: data.razao_social || prev.name,
@@ -117,35 +113,27 @@ function SupplierForm() {
     cnpj = cnpj.replace(/[^\d]+/g, '');
     if (cnpj.length !== 14) return false;
     let t = cnpj.length - 2,
-      d = cnpj.substring(t),
-      d1 = parseInt(d.charAt(0)),
-      d2 = parseInt(d.charAt(1)),
-      calc = (x) => {
-        let n = cnpj.substring(0, x),
-          y = x - 7,
-          s = 0,
-          r = 0;
-        for (let i = x; i >= 1; i--) {
-          s += n.charAt(x - i) * y--;
-          if (y < 2) y = 9;
-        }
-        r = 11 - (s % 11);
-        return r > 9 ? 0 : r;
-      };
+        d1 = parseInt(cnpj.charAt(t)),
+        d2 = parseInt(cnpj.charAt(t + 1)),
+        calc = (x) => {
+          let n = cnpj.substring(0, x),
+              y = x - 7,
+              s = 0;
+          for (let i = x; i >= 1; i--) {
+            s += n.charAt(x - i) * y--;
+            if (y < 2) y = 9;
+          }
+          let r = 11 - (s % 11);
+          return r > 9 ? 0 : r;
+        };
     return calc(t) === d1 && calc(t + 1) === d2;
   };
 
   const validarCampos = () => {
-    const obrigatorios = [
-      'name', 'email', 'cpf', 'telefone', 'rua',
-      'numero', 'bairro', 'cidade', 'estado', 'cep'
-    ];
+    const obrigatorios = ['name', 'email', 'cpf', 'telefone', 'rua', 'numero', 'bairro', 'cidade', 'estado', 'cep'];
     const novosErros = {};
-
     obrigatorios.forEach((campo) => {
-      if (!form[campo]?.trim()) {
-        novosErros[campo] = 'Campo obrigatório';
-      }
+      if (!form[campo]?.trim()) novosErros[campo] = 'Campo obrigatório';
     });
 
     const isCPF = form.cpf.replace(/\D/g, '').length === 11;
@@ -165,6 +153,9 @@ function SupplierForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validarCampos()) return;
+
+    // [BACKEND] POST: Cadastrar fornecedor no Django
+    // [BACKEND] PUT: Atualizar fornecedor no Django
     alert(isEdit ? 'Fornecedor editado!' : 'Fornecedor cadastrado!');
   };
 
@@ -201,7 +192,6 @@ function SupplierForm() {
         </div>
 
         {renderInput('rua', 'Logradouro')}
-
         <div className="input-row">
           {renderInput('numero', 'Número')}
           {renderInput('complemento', 'Complemento')}
@@ -212,20 +202,10 @@ function SupplierForm() {
         {renderInput('estado', 'Estado')}
 
         <p className="note-obrigatorio">* campo obrigatório</p>
-
-        <button type="submit">
-          {isEdit ? 'Salvar alterações' : 'Adicionar fornecedor'}
-        </button>
+        <button type="submit">{isEdit ? 'Salvar alterações' : 'Adicionar fornecedor'}</button>
       </form>
     </div>
   );
 }
 
 export default SupplierForm;
-
-
-
-
-
-
-

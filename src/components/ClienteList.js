@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import ClienteDetails from './ClienteDetails';
 import ClienteForm from './ClienteForm';
-import './SupplierList.css'; // mantido para reutilizar o estilo da lista
+import './SupplierList.css';
 
+// [BACKEND] GET: Buscar lista de clientes do backend via Django
 function ClienteList() {
   const [selectedClient, setSelectedClient] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -79,4 +80,3 @@ function ClienteList() {
 }
 
 export default ClienteList;
-

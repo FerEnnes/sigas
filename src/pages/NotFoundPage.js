@@ -17,14 +17,20 @@ function NotFoundPage() {
         <p style={{ fontSize: 16, color: '#666', marginBottom: 24 }}>
           O caminho que você acessou não existe ou foi movido.
         </p>
-        <a href="/fornecedores" style={{
-          backgroundColor: '#6da972',
-          color: 'white',
-          padding: '10px 20px',
-          borderRadius: '6px',
-          textDecoration: 'none',
-          fontWeight: 'bold'
-        }}>
+
+        {/* [BACKEND] (opcional) Você pode registrar essa navegação 404 para analytics ou logs */}
+
+        <a
+          href="/fornecedores"
+          style={{
+            backgroundColor: '#6da972',
+            color: 'white',
+            padding: '10px 20px',
+            borderRadius: '6px',
+            textDecoration: 'none',
+            fontWeight: 'bold'
+          }}
+        >
           Voltar para Início
         </a>
       </div>
@@ -33,3 +39,4 @@ function NotFoundPage() {
 }
 
 export default NotFoundPage;
+

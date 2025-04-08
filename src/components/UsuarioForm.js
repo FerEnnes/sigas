@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import './SupplierForm.css'; // Reaproveita estilos do SupplierForm
+import './SupplierForm.css';
 
 function UsuarioForm() {
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
@@ -17,14 +17,14 @@ function UsuarioForm() {
     bairro: '',
     cidade: '',
     estado: '',
-    tipoUsuario: '2' // padrão: comum
+    tipoUsuario: '2'
   });
 
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (isEdit) {
-      // ✅ Backend: preencher com dados reais via fetch ao invés da URL
+      // 🔗 Backend: aqui você pode substituir por um GET real
       setForm({
         nome: params.get('nome') || '',
         cpf: params.get('cpf') || '',
@@ -113,14 +113,31 @@ function UsuarioForm() {
     return Object.keys(novosErros).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validarCampos()) return;
 
-    // ✅ Backend:
-    // - POST: cadastrar novo usuário
-    // - PUT: atualizar usuário existente
-    alert(isEdit ? 'Usuário atualizado!' : 'Usuário cadastrado!');
+    try {
+      if (isEdit) {
+        // 🔗 PUT no backend
+        await fetch(`/api/usuarios/${form.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(form),
+        });
+        alert('Usuário atualizado com sucesso!');
+      } else {
+        // 🔗 POST no backend
+        await fetch(`/api/usuarios`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(form),
+        });
+        alert('Usuário cadastrado com sucesso!');
+      }
+    } catch (err) {
+      console.error('Erro ao salvar usuário:', err);
+    }
   };
 
   const renderInput = (name, label, onBlur) => (
@@ -145,28 +162,18 @@ function UsuarioForm() {
         {renderInput('nome', 'Nome Completo')}
         {renderInput('cpf', 'CPF')}
         {renderInput('email', 'Email')}
-
         <div className="input-row">
-          <div className="telefone-field">
-            {renderInput('telefone', 'Telefone')}
-          </div>
-          <div className="cep-field">
-            {renderInput('cep', 'CEP', handleCepBlur)}
-          </div>
+          <div className="telefone-field">{renderInput('telefone', 'Telefone')}</div>
+          <div className="cep-field">{renderInput('cep', 'CEP', handleCepBlur)}</div>
         </div>
-
         {renderInput('rua', 'Logradouro')}
-
         <div className="input-row">
           {renderInput('numero', 'Número')}
           {renderInput('complemento', 'Complemento')}
         </div>
-
         {renderInput('bairro', 'Bairro')}
         {renderInput('cidade', 'Cidade')}
         {renderInput('estado', 'Estado')}
-
-        {/* Tipo de usuário */}
         <div className="required-wrapper">
           <label htmlFor="tipoUsuario">Tipo de Usuário</label>
           <span className="asterisk">*</span>
@@ -174,9 +181,7 @@ function UsuarioForm() {
             <option value="2">Comum</option>
             <option value="1">Admin</option>
           </select>
-          {errors.tipoUsuario && <small className="error">{errors.tipoUsuario}</small>}
         </div>
-
         <p className="note-obrigatorio">* campo obrigatório</p>
         <button type="submit">
           {isEdit ? 'Salvar alterações' : 'Adicionar usuário'}

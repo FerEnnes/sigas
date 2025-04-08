@@ -10,12 +10,12 @@ function UsuarioListPage() {
   const [showForm, setShowForm] = useState(false);
 
   const handleEdit = (user) => {
-    setSelectedUser(user);       
-    setShowForm(true);          
+    setSelectedUser(user);
+    setShowForm(true);
   };
 
   const handleAdd = () => {
-    setSelectedUser(null);    
+    setSelectedUser(null);
     setShowForm(true);
   };
 
@@ -29,15 +29,13 @@ function UsuarioListPage() {
         />
       </Helmet>
 
-      {/* Sidebar lateral padrão */}
       <Sidebar />
 
-      {/* Lista de usuários */}
       <div className="main-content">
         <UsuarioList onEdit={handleEdit} onAdd={handleAdd} />
       </div>
 
-      {/* Sidebar lateral de formulário */}
+      {/* Backend: O formulário abaixo deve enviar os dados via POST/PUT para a API de usuários */}
       {showForm && (
         <div className="form-sidebar">
           <button className="close-button" onClick={() => setShowForm(false)}>×</button>

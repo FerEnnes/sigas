@@ -23,6 +23,7 @@ function PropertyForm() {
 
   useEffect(() => {
     if (isEdit) {
+      // [BACKEND] GET: Buscar dados da propriedade para edição via Django
       setForm({
         name: params.get('name') || '',
         email: params.get('email') || '',
@@ -167,6 +168,13 @@ function PropertyForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validarCampos()) return;
+
+    if (isEdit) {
+      // [BACKEND] PUT: Atualizar propriedade existente via Django
+    } else {
+      // [BACKEND] POST: Criar nova propriedade via Django
+    }
+
     alert(isEdit ? 'Propriedade editada!' : 'Propriedade cadastrada!');
   };
 
@@ -224,5 +232,3 @@ function PropertyForm() {
 }
 
 export default PropertyForm;
-
-
