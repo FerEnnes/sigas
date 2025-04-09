@@ -39,6 +39,7 @@ function stringAvatar(name) {
       height: 40,
       fontWeight: 'bold',
       fontSize: 14,
+      fontFamily: "'Nunito', Helvetica, sans-serif"
     }
   };
 }
@@ -52,8 +53,12 @@ function Sidebar() {
   const nomeUsuario = localStorage.getItem('nome') || 'Usuário';
 
   const handleLogout = () => {
+    // 🔐 BACKEND (opcional): Enviar requisição de logout se for JWT com blacklist
+    // fetch('/api/logout/', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+
+    // Limpa dados do login e redireciona
     localStorage.clear();
-    window.location.href = '/login';
+    window.location.href = '/login'; // Redireciona para tela de login
   };
 
   return (
@@ -151,7 +156,7 @@ function Sidebar() {
         </li>
       </ul>
 
-      {/* Rodapé com usuário logado */}
+      {/* Rodapé com avatar e botão de logout */}
       <div className="user-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <Avatar {...stringAvatar(nomeUsuario)} />

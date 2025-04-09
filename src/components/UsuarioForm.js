@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './SupplierForm.css';
+import { toast } from 'react-toastify';
 
 function UsuarioForm() {
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
@@ -24,7 +25,7 @@ function UsuarioForm() {
 
   useEffect(() => {
     if (isEdit) {
-      // 🔗 Backend: aqui você pode substituir por um GET real
+      //  BACKEND: Substituir com GET real se for o caso
       setForm({
         nome: params.get('nome') || '',
         cpf: params.get('cpf') || '',
@@ -113,30 +114,47 @@ function UsuarioForm() {
     return Object.keys(novosErros).length === 0;
   };
 
+  const gerarSenhaProvisoria = () => {
+    return Math.random().toString(36).slice(-8);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validarCampos()) return;
 
     try {
       if (isEdit) {
-        // 🔗 PUT no backend
+        //  BACKEND: Atualização de usuário
         await fetch(`/api/usuarios/${form.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form),
         });
-        alert('Usuário atualizado com sucesso!');
+        toast.success('Usuário atualizado com sucesso!');
       } else {
-        // 🔗 POST no backend
-        await fetch(`/api/usuarios`, {
+        // BACKEND: Criação de novo usuário com senha provisória
+        const senhaProvisoria = gerarSenhaProvisoria();
+
+        const payload = {
+          ...form,
+          senha: senhaProvisoria,            //  Envia senha provisória
+          redefinirSenha: true               //  Backend força troca no primeiro login
+        };
+
+        const res = await fetch(`/api/usuarios`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form),
+          body: JSON.stringify(payload),
         });
-        alert('Usuário cadastrado com sucesso!');
+
+        if (!res.ok) throw new Error('Erro ao cadastrar usuário');
+
+        toast.success(`Usuário cadastrado com sucesso! Senha provisória: ${senhaProvisoria}`);
+        console.log('Senha provisória:', senhaProvisoria);
       }
     } catch (err) {
       console.error('Erro ao salvar usuário:', err);
+      toast.error('Erro ao salvar usuário');
     }
   };
 
@@ -162,18 +180,27 @@ function UsuarioForm() {
         {renderInput('nome', 'Nome Completo')}
         {renderInput('cpf', 'CPF')}
         {renderInput('email', 'Email')}
+
         <div className="input-row">
-          <div className="telefone-field">{renderInput('telefone', 'Telefone')}</div>
-          <div className="cep-field">{renderInput('cep', 'CEP', handleCepBlur)}</div>
+          <div className="telefone-field">
+            {renderInput('telefone', 'Telefone')}
+          </div>
+          <div className="cep-field">
+            {renderInput('cep', 'CEP', handleCepBlur)}
+          </div>
         </div>
+
         {renderInput('rua', 'Logradouro')}
+
         <div className="input-row">
           {renderInput('numero', 'Número')}
           {renderInput('complemento', 'Complemento')}
         </div>
+
         {renderInput('bairro', 'Bairro')}
         {renderInput('cidade', 'Cidade')}
         {renderInput('estado', 'Estado')}
+
         <div className="required-wrapper">
           <label htmlFor="tipoUsuario">Tipo de Usuário</label>
           <span className="asterisk">*</span>
@@ -182,6 +209,7 @@ function UsuarioForm() {
             <option value="1">Admin</option>
           </select>
         </div>
+
         <p className="note-obrigatorio">* campo obrigatório</p>
         <button type="submit">
           {isEdit ? 'Salvar alterações' : 'Adicionar usuário'}
