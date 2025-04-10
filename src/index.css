@@ -1,8 +1,26 @@
+:root {
+  --bg-color: #f9f9f9;
+  --text-color: #333;
+}
+
+body.dark {
+  --bg-color: #121212;
+  --text-color: #f9f9f9;
+}
+
+body.light {
+  --bg-color: #f9f9f9;
+  --text-color: #333;
+}
+
 body {
   margin: 0;
   font-family: 'Nunito', Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 code {

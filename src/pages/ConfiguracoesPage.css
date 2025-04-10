@@ -1,0 +1,89 @@
+.config-wrapper {
+  padding: 30px;
+  flex: 1;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+.config-header h2 {
+  margin-bottom: 24px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.config-avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.config-avatar-section strong {
+  font-size: 18px;
+}
+
+.config-avatar-section p {
+  margin: 0;
+  font-size: 13px;
+  color: #777;
+}
+
+.alterar-foto-btn {
+  background: none;
+  border: none;
+  color: #4a7c59;
+  padding: 0;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-top: 4px;
+}
+
+.config-form-wrapper {
+  max-width: 300px;
+}
+
+.config-form label {
+  display: block;
+  margin: 2px 0 2px;
+  font-weight: 600;
+}
+
+.config-form input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 3px;
+  font-size: 14px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  color: #333;
+}
+
+.config-form .row {
+  display: flex;
+  gap: 16px;
+}
+
+.config-form .row div {
+  flex: 1;
+}
+
+.save-btn {
+  background-color: #6ba877;
+  color: white;
+  padding: 12px;
+  width: 100%;
+  font-weight: bold;
+  border: none;
+  margin-top: 24px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.save-btn:hover {
+  background-color: #5a9464;
+}
