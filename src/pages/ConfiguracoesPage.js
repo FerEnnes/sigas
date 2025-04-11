@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Avatar from '@mui/material/Avatar';
+import { toast } from 'react-toastify';
 import './ConfiguracoesPage.css';
 
 function ConfiguracoesPage() {
@@ -63,10 +64,21 @@ function ConfiguracoesPage() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Dados enviados:', form);
-    // BACKEND: enviar via PUT
+
+    try {
+      // 🔗 BACKEND FUTURO: substituir pela chamada real
+      console.log('Dados enviados:', form);
+      toast.success('Perfil atualizado com sucesso!');
+    } catch (err) {
+      toast.error('Erro ao atualizar perfil');
+    }
+  };
+
+  const handleFotoClick = () => {
+    // 🔗 BACKEND FUTURO: integração com upload
+    toast.info('Funcionalidade de upload ainda será integrada.');
   };
 
   return (
@@ -83,7 +95,7 @@ function ConfiguracoesPage() {
             <div>
               <strong>{form.nome}</strong>
               <p>{form.email}</p>
-              <button className="alterar-foto-btn">Alterar foto</button>
+              <button className="small-btn" type="button" onClick={handleFotoClick}>Alterar foto</button>
             </div>
           </div>
 
