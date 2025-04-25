@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Sidebar from '../components/Sidebar';
 import PlanoContasTree from '../components/PlanoContasTree';
 import PlanoContasModal from '../components/PlanoContasModal';
@@ -14,29 +14,29 @@ function PlanoContasPage() {
   const [userTipo] = useState(1); // 1 = Admin, 2 = Colaborador
 
   // 📦 MOCK DE PLANO SIMPLIFICADO
-  const fakeSimplificado = [
+  const fakeSimplificado = useCallback(() => [
     {
       id: 1,
       descricao: '1. Ativos',
       subcontas: [
-        { id: 11, descricao: 'A. Caixa' },
-        { id: 12, descricao: 'B. Investimentos' },
-        { id: 13, descricao: 'C. Produtos para revenda' }
+        { id: 11, descricao: 'A. Caixa', subcontas: [] },
+        { id: 12, descricao: 'B. Investimentos', subcontas: [] },
+        { id: 13, descricao: 'C. Produtos para revenda', subcontas: [] }
       ]
     },
     {
       id: 2,
       descricao: '2. Passivo',
       subcontas: [
-        { id: 21, descricao: 'A. Impostos' },
-        { id: 22, descricao: 'B. Empréstimos' },
-        { id: 23, descricao: 'C. Salários' }
+        { id: 21, descricao: 'A. Impostos', subcontas: [] },
+        { id: 22, descricao: 'B. Empréstimos', subcontas: [] },
+        { id: 23, descricao: 'C. Salários', subcontas: [] }
       ]
     }
-  ];
+  ], []);
 
   // 📦 MOCK DE PLANO DETALHADO
-  const fakeDetalhado = [
+  const fakeDetalhado = useCallback(() => [
     {
       id: 100,
       descricao: '1. Ativo',
@@ -49,57 +49,55 @@ function PlanoContasPage() {
               id: 1011,
               descricao: '1.1.1 Disponível',
               subcontas: [
-                { id: 10111, descricao: '1.1.1.1 Caixa' },
-                { id: 10112, descricao: '1.1.1.2 Conta bancária' },
+                { id: 10111, descricao: '1.1.1.1 Caixa', subcontas: [] },
+                { id: 10112, descricao: '1.1.1.2 Conta bancária', subcontas: [] }
               ]
             }
           ]
         }
       ]
     }
-  ];
+  ], []);
 
   // 📥 Carregar plano de contas com base no modelo selecionado
   useEffect(() => {
-    // 🔗 Backend futuramente: axios.get('/api/plano-contas?modelo=1')
-    setContas(modelo === 1 ? fakeSimplificado : fakeDetalhado);
-  }, [modelo]);
+    // 🔗 FUTURO BACKEND:
+    // fetch(`/api/plano-contas?modelo=${modelo}`)
+    //   .then(res => res.json())
+    //   .then(data => setContas(data))
 
-  // 🔁 Trocar modelo (com toast)
+    setContas(modelo === 1 ? fakeSimplificado() : fakeDetalhado());
+  }, [modelo, fakeSimplificado, fakeDetalhado]);
+
   const handleModeloChange = (novoModelo) => {
     setModelo(novoModelo);
     toast.info(`Visualizando: ${novoModelo === 1 ? 'Simplificado' : 'Detalhado'}`);
   };
 
-  // ✅ Atualiza localmente a lista de contas (mockado)
   const atualizarLista = (novaConta) => {
     const novoId = Math.max(...flattenIds(contas)) + 1;
 
     if (novaConta.id) {
-      // Editar
       setContas(updateConta(contas, novaConta));
       toast.success('Conta atualizada!');
     } else {
-      // Criar nova
-      const novaComId = { ...novaConta, id: novoId };
+      const novaComId = { ...novaConta, id: novoId, subcontas: [] };
       setContas([...contas, novaComId]);
       toast.success('Conta criada!');
     }
   };
 
-  // 🔧 Utilitário para pegar todos os IDs aninhados
   const flattenIds = (items) => {
     let ids = [];
     for (const item of items) {
       ids.push(item.id);
-      if (item.subcontas) {
+      if (Array.isArray(item.subcontas)) {
         ids = [...ids, ...flattenIds(item.subcontas)];
       }
     }
     return ids;
   };
 
-  // 🔧 Atualiza uma conta dentro da hierarquia
   const updateConta = (lista, nova) =>
     lista.map(item => {
       if (item.id === nova.id) return nova;
@@ -115,7 +113,6 @@ function PlanoContasPage() {
       <div className="plano-container">
         <h2>Plano de Contas ({modelo === 1 ? 'Simplificado' : 'Detalhado'})</h2>
 
-        {/* Toggle entre modelos */}
         {userTipo === 1 && (
           <div className="modelo-toggle">
             <button className={modelo === 1 ? 'active' : ''} onClick={() => handleModeloChange(1)}>
@@ -127,7 +124,6 @@ function PlanoContasPage() {
           </div>
         )}
 
-        {/* 🌳 Árvore */}
         <PlanoContasTree
           contas={contas}
           onEdit={(data) => {
@@ -136,7 +132,6 @@ function PlanoContasPage() {
           }}
         />
 
-        {/* ➕ Criar nova conta */}
         {userTipo === 1 && (
           <button className="add-button" onClick={() => {
             setEditData(null);
@@ -146,7 +141,6 @@ function PlanoContasPage() {
           </button>
         )}
 
-        {/* 🪟 Modal */}
         {openModal && (
           <PlanoContasModal
             modelo={modelo}
@@ -159,7 +153,6 @@ function PlanoContasPage() {
           />
         )}
 
-        {/* 🍞 Toasts */}
         <ToastContainer position="top-right" autoClose={3000} />
       </div>
     </div>
