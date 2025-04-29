@@ -66,7 +66,7 @@ Scripts Disponíveis
 --- 
 
 Estrutura de Pastas
-
+```
 ├── public/
 │   └── index.html
 ├── src/
@@ -78,7 +78,7 @@ Estrutura de Pastas
 │   ├── App.js            # Componente principal
 │   ├── index.js          # Entrada da aplicação
 
-
+```
 ---
 
 Funcionalidades Principais
