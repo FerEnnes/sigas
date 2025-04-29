@@ -1,8 +1,13 @@
 🌿 SAAS Agro Light - Sistema de Gestão Agropecuária
 
+
 Este projeto é um sistema web completo voltado para gestão de propriedades agropecuárias. Desenvolvido com foco em modularidade, escalabilidade e responsividade, o sistema oferece ferramentas para cadastro de entidades, controle financeiro, exibição de dashboards analíticos e integração com APIs externas (clima e autenticação).
 
-<img width="2047" alt="Captura de Tela 2025-04-04 às 15 03 57" src="https://github.com/user-attachments/assets/c0fc65ab-0e60-4090-a0f5-64805283e09e" />
+<img width="2048" alt="Captura de Tela 2025-04-29 às 15 46 24" src="https://github.com/user-attachments/assets/6e0bcc33-c565-4248-a15d-686b6b30ccb2" />
+
+<img width="2048" alt="Captura de Tela 2025-04-29 às 15 47 10" src="https://github.com/user-attachments/assets/e762dca2-9580-4f04-a0dd-838a3188d84c" />
+
+<img width="2048" alt="Captura de Tela 2025-04-29 às 15 47 40" src="https://github.com/user-attachments/assets/1ea0677a-6d93-4304-ad24-509043d2f7c3" />
 
 ## Índice
 
@@ -53,7 +58,7 @@ Este projeto é um sistema web completo voltado para gestão de propriedades agr
 ````
 ---
 
-Scripts Disponíveis
+## Scripts Disponíveis
 
  npm start – Inicia o servidor em modo de desenvolvimento
 
@@ -65,7 +70,7 @@ Scripts Disponíveis
 
 --- 
 
-Estrutura de Pastas
+## Estrutura de Pastas
 ```
 ├── public/
 │   └── index.html
@@ -81,7 +86,7 @@ Estrutura de Pastas
 ```
 ---
 
-Funcionalidades Principais
+## Funcionalidades Principais
 
   - Login e recuperação de senha
 
@@ -119,7 +124,7 @@ Funcionalidades Principais
 
 ---
 
-Integração com OpenWeather API
+## Integração com OpenWeather API
   A previsão do tempo é obtida automaticamente via geolocalização ou por busca manual.
 
     // Exemplo - services/weatherService.js
@@ -128,14 +133,14 @@ Integração com OpenWeather API
     };
 
 ---
-Autenticação e Rotas Protegidas
+## Autenticação e Rotas Protegidas
   A autenticação é baseada em token e é gerenciada por meio de AuthContext.js. As rotas protegidas utilizam o componente PrivateRoute.
 
     <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
 
 ---
 
-Estilização e Responsividade
+## Estilização e Responsividade
 
   Layout construído com Flexbox e media queries
 
@@ -146,5 +151,5 @@ Estilização e Responsividade
   Suporte total a telas menores (mobile-first)
 
 ---
-Licença
+## Licença
   Distribuído sob a licença MIT. Consulte package-lock.json para detalhes sobre as dependências utilizadas.
