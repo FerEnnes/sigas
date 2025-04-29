@@ -78,6 +78,7 @@ Estrutura de Pastas
 │   ├── App.js            # Componente principal
 │   ├── index.js          # Entrada da aplicação
 
+
 ---
 
 Funcionalidades Principais
