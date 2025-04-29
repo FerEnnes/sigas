@@ -1,4 +1,3 @@
-/* Fonte padrão */
 body {
   font-family: 'Nunito', Helvetica, sans-serif;
   margin: 0;
@@ -57,7 +56,6 @@ input[type="password"] {
   font-family: 'Nunito', sans-serif;
 }
 
-/* Botão */
 button[type="submit"] {
   background-color: #6da66f;
   color: #fff;
@@ -88,7 +86,7 @@ button[type="submit"]:hover {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 0;
+  white-space: nowrap;
 }
 
 .login-options a {

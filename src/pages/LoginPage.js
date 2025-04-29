@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 import logo from '../assets/Logo.png';
 import imagemRural from '../assets/bg-fazenda.jpg';
-import { toast } from 'react-toastify'; 
+import { toast } from 'react-toastify';
+
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -13,7 +14,7 @@ function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    //  MOCK temporário - remover quando backend estiver pronto
+    // MOCK de login (enquanto o backend não estiver pronto)
     if (email === 'admin@email.com' && senha === '123456') {
       const storage = lembrar ? localStorage : sessionStorage;
       storage.setItem('token', 'mock-token');
@@ -21,21 +22,19 @@ function LoginPage() {
       storage.setItem('tipoUsuario', '1');
 
       toast.success('Login realizado com sucesso!');
-      navigate('/dashboard');
+      console.log(' Login mock OK, redirecionando...');
+      navigate('/usuarios'); //  Altere para rota válida existente
       return;
     }
 
+    //  BACKEND DJANGO (ativa depois)
+    /*
     try {
       const res = await fetch('/api/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, senha })
       });
-
-      //  BACKEND DJANGO:
-      // POST /api/login/
-      // body: { email, senha }
-      // response: { token, usuario: { nome, tipoUsuario, redefinirSenha } }
 
       if (!res.ok) {
         toast.error('Usuário ou senha inválidos');
@@ -45,12 +44,10 @@ function LoginPage() {
       const data = await res.json();
       const storage = lembrar ? localStorage : sessionStorage;
 
-      // Armazena dados no local/sessionStorage
       storage.setItem('token', data.token);
       storage.setItem('nome', data.usuario.nome);
       storage.setItem('tipoUsuario', data.usuario.tipoUsuario);
 
-      // Redireciona caso precise alterar senha
       if (data.usuario.redefinirSenha) {
         toast.info('Redefina sua senha para continuar');
         navigate('/redefinir-senha');
@@ -58,11 +55,12 @@ function LoginPage() {
       }
 
       toast.success('Login realizado com sucesso');
-      navigate('/dashboard');
+      navigate('/dashboard'); //  Altere para rota real
     } catch (err) {
       console.error(err);
       toast.error('Erro ao conectar com o servidor');
     }
+    */
   };
 
   return (
@@ -91,8 +89,9 @@ function LoginPage() {
           />
 
           <div className="login-options">
-            <label>
+            <label htmlFor="lembrar">
               <input
+                id="lembrar"
                 type="checkbox"
                 checked={lembrar}
                 onChange={() => setLembrar(!lembrar)}
