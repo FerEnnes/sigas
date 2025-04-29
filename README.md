@@ -50,6 +50,8 @@ Este projeto é um sistema web completo voltado para gestão de propriedades agr
 4. Inicie o servidor de desenvolvimento:
   npm start
 
+_________________________________
+
 Scripts Disponíveis
 
   npm start – Inicia o servidor em modo de desenvolvimento
@@ -113,7 +115,7 @@ A previsão do tempo é obtida automaticamente via geolocalização ou por busca
 
   // Exemplo - services/weatherService.js
   export const getWeatherByCity = async (cidade) => {
-    return axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${cidade}&units=metric&lang=pt_br&appid=${API_KEY}`);
+  return axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${cidade}&units=metric&lang=pt_br&appid=${API_KEY}`);
   };
 
 Autenticação e Rotas Protegidas
