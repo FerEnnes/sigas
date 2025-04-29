@@ -13,7 +13,7 @@ function PlanoContasPage() {
   const [editData, setEditData] = useState(null);
   const [userTipo] = useState(1); // 1 = Admin, 2 = Colaborador
 
-  // 📦 MOCK DE PLANO SIMPLIFICADO
+  //  MOCK DE PLANO SIMPLIFICADO
   const fakeSimplificado = useCallback(() => [
     {
       id: 1,
@@ -35,7 +35,7 @@ function PlanoContasPage() {
     }
   ], []);
 
-  // 📦 MOCK DE PLANO DETALHADO
+  //  MOCK DE PLANO DETALHADO
   const fakeDetalhado = useCallback(() => [
     {
       id: 100,
@@ -59,9 +59,9 @@ function PlanoContasPage() {
     }
   ], []);
 
-  // 📥 Carregar plano de contas com base no modelo selecionado
+  //  Carregar plano de contas com base no modelo selecionado
   useEffect(() => {
-    // 🔗 FUTURO BACKEND:
+    // FUTURO BACKEND:
     // fetch(`/api/plano-contas?modelo=${modelo}`)
     //   .then(res => res.json())
     //   .then(data => setContas(data))

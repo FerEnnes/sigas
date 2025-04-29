@@ -68,7 +68,7 @@ function ConfiguracoesPage() {
     e.preventDefault();
 
     try {
-      // 🔗 BACKEND FUTURO: substituir pela chamada real
+      // BACKEND FUTURO: substituir pela chamada real
       console.log('Dados enviados:', form);
       toast.success('Perfil atualizado com sucesso!');
     } catch (err) {
@@ -77,7 +77,7 @@ function ConfiguracoesPage() {
   };
 
   const handleFotoClick = () => {
-    // 🔗 BACKEND FUTURO: integração com upload
+    // BACKEND FUTURO: integração com upload
     toast.info('Funcionalidade de upload ainda será integrada.');
   };
 

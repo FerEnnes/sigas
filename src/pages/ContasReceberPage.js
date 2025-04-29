@@ -26,7 +26,7 @@ function ContasReceberPage() {
   const [mostrarForm, setMostrarForm] = useState(false);
   const [contaSelecionada, setContaSelecionada] = useState(null);
 
-  // ✅ Salva nova ou edita existente
+  // Salva nova ou edita existente
   const handleSalvarConta = (nova) => {
     if (nova.id) {
       setContas((prev) =>
@@ -39,16 +39,16 @@ function ContasReceberPage() {
       toast.success('Conta criada!');
     }
 
-    // 🔗 BACKEND: POST /api/contas/receber ou PUT /api/contas/receber/:id
+    //  BACKEND: POST /api/contas/receber ou PUT /api/contas/receber/:id
   };
 
-  // ✅ Simula inativação (exclusão lógica)
+  //  Simula inativação (exclusão lógica)
   const handleInativar = (id) => {
     setContas((prev) =>
       prev.map((c) => (c.id === id ? { ...c, status: 'Inativa' } : c))
     );
 
-    // 🔗 BACKEND: PUT /api/contas/receber/:id/inativar
+    //  BACKEND: PUT /api/contas/receber/:id/inativar
     toast.success('Conta inativada!');
   };
 

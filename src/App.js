@@ -3,6 +3,10 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 
+import { AuthProvider } from './components/AuthContext';
+import PrivateRoute from './components/PrivateRoute';
+
+// Importações das páginas
 import SupplierListPage from './pages/SupplierListPage';
 import SupplierFormPage from './pages/SupplierFormPage';
 import PropertyListPage from './pages/PropertyListPage';
@@ -11,63 +15,55 @@ import ClienteListPage from './pages/ClienteListPage';
 import ClienteFormPage from './pages/ClienteFormPage';
 import CalendarioPage from './pages/CalendarioPage';
 import PlanoContasPage from './pages/PlanoContasPage';
-import ContasResumoPage from './pages/ContasResumoPage'; // ✅ NOVO
+import ContasResumoPage from './pages/ContasResumoPage';
 import ContasPagarPage from './pages/ContasPagarPage';
 import ContasReceberPage from './pages/ContasReceberPage';
 import UsuarioListPage from './pages/UsuarioListPage';
 import UsuarioFormPage from './pages/UsuarioFormPage';
+import DashboardPage from './pages/DashboardPage';
+import NotificacoesPage from './pages/NotificacoesPage'; // Importado
 import LoginPage from './pages/LoginPage';
 import RecuperarSenhaPage from './pages/RecuperarSenhaPage';
 import RedefinirSenhaPage from './pages/RedefinirSenhaPage';
-import ConfiguracoesPage from './pages/ConfiguracoesPage'; 
+import ConfiguracoesPage from './pages/ConfiguracoesPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Autenticação e Conta */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/recuperar-senha" element={<RecuperarSenhaPage />} />
-        <Route path="/redefinir-senha/:token" element={<RedefinirSenhaPage />} />
-        <Route path="/configuracoes" element={<ConfiguracoesPage />} />
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Públicas */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/recuperar-senha" element={<RecuperarSenhaPage />} />
+          <Route path="/redefinir-senha/:token" element={<RedefinirSenhaPage />} />
 
-        {/* Redirecionamento padrão */}
-        <Route path="/" element={<Navigate to="/fornecedores" />} />
+          {/* Protegidas */}
+          <Route path="/" element={<PrivateRoute><Navigate to="/dashboard" /></PrivateRoute>} />
+          <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+          <Route path="/usuarios" element={<PrivateRoute><UsuarioListPage /></PrivateRoute>} />
+          <Route path="/usuarios/cadastrar" element={<PrivateRoute><UsuarioFormPage /></PrivateRoute>} />
+          <Route path="/clientes" element={<PrivateRoute><ClienteListPage /></PrivateRoute>} />
+          <Route path="/clientes/cadastrar" element={<PrivateRoute><ClienteFormPage /></PrivateRoute>} />
+          <Route path="/fornecedores" element={<PrivateRoute><SupplierListPage /></PrivateRoute>} />
+          <Route path="/fornecedores/cadastrar" element={<PrivateRoute><SupplierFormPage /></PrivateRoute>} />
+          <Route path="/propriedades" element={<PrivateRoute><PropertyListPage /></PrivateRoute>} />
+          <Route path="/propriedades/cadastrar" element={<PrivateRoute><PropertyFormPage /></PrivateRoute>} />
+          <Route path="/plano-contas" element={<PrivateRoute><PlanoContasPage /></PrivateRoute>} />
+          <Route path="/contas" element={<PrivateRoute><ContasResumoPage /></PrivateRoute>} />
+          <Route path="/contas/pagar" element={<PrivateRoute><ContasPagarPage /></PrivateRoute>} />
+          <Route path="/contas/receber" element={<PrivateRoute><ContasReceberPage /></PrivateRoute>} />
+          <Route path="/calendario" element={<PrivateRoute><CalendarioPage /></PrivateRoute>} />
+          <Route path="/notificacoes" element={<PrivateRoute><NotificacoesPage /></PrivateRoute>} /> {/* Nova Rota */}
+          <Route path="/configuracoes" element={<PrivateRoute><ConfiguracoesPage /></PrivateRoute>} />
 
-        {/* Usuários */}
-        <Route path="/usuarios" element={<UsuarioListPage />} />
-        <Route path="/usuarios/cadastrar" element={<UsuarioFormPage />} />
+          {/* Página não encontrada */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
 
-        {/* Clientes */}
-        <Route path="/clientes" element={<ClienteListPage />} />
-        <Route path="/clientes/cadastrar" element={<ClienteFormPage />} />
-
-        {/* Fornecedores */}
-        <Route path="/fornecedores" element={<SupplierListPage />} />
-        <Route path="/fornecedores/cadastrar" element={<SupplierFormPage />} />
-
-        {/* Propriedades */}
-        <Route path="/propriedades" element={<PropertyListPage />} />
-        <Route path="/propriedades/cadastrar" element={<PropertyFormPage />} />
-
-        {/* Plano de Contas */}
-        <Route path="/plano-contas" element={<PlanoContasPage />} />
-
-        {/* Contas */}
-        <Route path="/contas" element={<ContasResumoPage />} />         {/* ✅ NOVA TELA */}
-        <Route path="/contas/pagar" element={<ContasPagarPage />} />
-        <Route path="/contas/receber" element={<ContasReceberPage />} />
-
-        {/* Calendário */}
-        <Route path="/calendario" element={<CalendarioPage />} />
-
-        {/* Página não encontrada */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-
-      <ToastContainer position="top-right" autoClose={3000} />
-    </Router>
+        <ToastContainer position="top-right" autoClose={3000} />
+      </Router>
+    </AuthProvider>
   );
 }
 

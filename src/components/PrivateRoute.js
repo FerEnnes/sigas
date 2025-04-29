@@ -1,11 +1,10 @@
-import React from 'react';
 import { Navigate } from 'react-router-dom';
+import { useAuth } from './AuthContext'; // Ajuste o caminho!
 
 function PrivateRoute({ children }) {
-  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+  const { isAuthenticated } = useAuth();
 
-  //  Se não estiver logado, redireciona para o login
-  if (!token) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 

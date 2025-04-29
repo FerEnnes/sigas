@@ -26,7 +26,7 @@ function ContasPagarPage() {
   const [mostrarForm, setMostrarForm] = useState(false);
   const [contaSelecionada, setContaSelecionada] = useState(null);
 
-  // ✅ Criação ou edição local da conta
+  //  Criação ou edição local da conta
   const handleSalvarConta = (nova) => {
     if (nova.id) {
       setContas((prev) =>
@@ -39,17 +39,17 @@ function ContasPagarPage() {
       toast.success('Conta criada!');
     }
 
-    // 🔗 BACKEND: POST /api/contas/pagar (nova)
-    // 🔗 BACKEND: PUT /api/contas/pagar/:id (editar)
+    // BACKEND: POST /api/contas/pagar (nova)
+    // BACKEND: PUT /api/contas/pagar/:id (editar)
   };
 
-  // ✅ Simula inativação da conta
+  // Simula inativação da conta
   const handleInativar = (id) => {
     setContas((prev) =>
       prev.map((c) => (c.id === id ? { ...c, status: 'Inativa' } : c))
     );
 
-    // 🔗 BACKEND: PUT /api/contas/pagar/:id/inativar
+    //  BACKEND: PUT /api/contas/pagar/:id/inativar
     toast.success('Conta inativada!');
   };
 

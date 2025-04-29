@@ -11,19 +11,18 @@ body {
   width: 100%;
 }
 
-/* Lado esquerdo */
 .login-left {
   width: 40%;
   padding: 40px 60px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center; /* CENTRALIZA TUDO */
+  align-items: center; 
   background-color: #fff;
 }
 
 .login-logo {
-  width: 350px; /* LOGO MAIOR */
+  width: 350px; 
   margin-bottom: 10px;
 }
 
@@ -32,7 +31,7 @@ body {
   margin-bottom: 30px;
   color: #444444;
   font-weight: 600;
-  text-align: center; /* CENTRALIZA TEXTO */
+  text-align: center; 
 }
 
 form {
@@ -76,7 +75,6 @@ button[type="submit"]:hover {
   background-color: #558d58;
 }
 
-/* Alinhamento lembrar-me */
 .login-options {
   display: flex;
   justify-content: space-between;
@@ -103,14 +101,12 @@ button[type="submit"]:hover {
   text-decoration: underline;
 }
 
-/* Mensagem de erro */
 .error-msg {
   color: red;
   font-size: 13px;
   margin-top: 10px;
 }
 
-/* Lado direito */
 .login-right {
   width: 60%;
   height: 100%;

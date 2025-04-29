@@ -19,7 +19,7 @@ function UsuarioList() {
       } catch (error) {
         console.warn('Usando dados mockados, backend indisponível');
 
-        // ✅ Fallback para testes locais
+        //  Fallback para testes locais
         setUsuarios([
           {
             id: 1,

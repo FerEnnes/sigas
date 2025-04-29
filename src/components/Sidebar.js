@@ -1,35 +1,21 @@
 import React, { useState } from 'react';
-import './Sidebar.css';
-import logo from '../assets/Logo.png';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
-import { FiLogOut } from 'react-icons/fi';
-
+import logo from '../assets/Logo.png';
 import {
-  FiUsers,
-  FiUser,
-  FiUserCheck,
-  FiTruck,
-  FiHome,
-  FiDollarSign,
-  FiBell,
-  FiCalendar,
-  FiSettings,
-  FiChevronDown,
-  FiChevronUp,
-  FiGrid,
-  FiClipboard,
-  FiFileText,
+  FiUsers, FiUser, FiUserCheck, FiTruck, FiHome, FiDollarSign, FiBell,
+  FiCalendar, FiSettings, FiChevronDown, FiChevronUp, FiGrid, FiClipboard, FiFileText,
+  FiLogOut
 } from 'react-icons/fi';
+import './Sidebar.css';
 
-// Gera avatar com iniciais do nome
+// Função para gerar avatar automático
 function stringAvatar(name) {
   const initials = name
     .split(' ')
     .map(n => n[0])
     .join('')
     .toUpperCase();
-
   return {
     children: initials,
     sx: {
@@ -46,26 +32,32 @@ function stringAvatar(name) {
 
 function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [cadastrosOpen, setCadastrosOpen] = useState(true);
   const [contasOpen, setContasOpen] = useState(true);
 
-  const tipoUsuario = localStorage.getItem('tipoUsuario'); // "1" = admin
+  const tipoUsuario = localStorage.getItem('tipoUsuario');
   const nomeUsuario = localStorage.getItem('nome') || 'Usuário';
 
   const handleLogout = () => {
-    // 🔐 BACKEND (opcional): Enviar requisição de logout se for JWT com blacklist
-    // fetch('/api/logout/', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
-
-    // Limpa dados do login e redireciona
+    // BACKEND (opcional): POST /api/logout para invalidar token
+    // fetch('/api/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
     localStorage.clear();
-    window.location.href = '/login'; // Redireciona para tela de login
+    window.location.href = '/login';
+  };
+
+  const handleContasClick = () => {
+    setContasOpen(!contasOpen);
+    navigate('/contas');
   };
 
   return (
     <div className="sidebar">
       <img src={logo} alt="Logo SAAS AGRO LIGHT" className="logo" />
       <h2>SAAS AGRO LIGHT</h2>
+
       <ul>
+        {/* Dashboard */}
         <li>
           <Link to="/dashboard" className={location.pathname === '/dashboard' ? 'active sidebar-link' : 'sidebar-link'}>
             <FiGrid className="icon" />
@@ -81,7 +73,6 @@ function Sidebar() {
 
         {cadastrosOpen && (
           <ul className="submenu">
-            {/* Apenas para admin */}
             {tipoUsuario === '1' && (
               <li>
                 <Link to="/usuarios" className={location.pathname === '/usuarios' ? 'active submenu-link' : 'submenu-link'}>
@@ -104,7 +95,6 @@ function Sidebar() {
                 <FiHome className="icon" /> Propriedades
               </Link>
             </li>
-            {/* Apenas para admin */}
             {tipoUsuario === '1' && (
               <li>
                 <Link to="/plano-contas" className={location.pathname === '/plano-contas' ? 'active submenu-link' : 'submenu-link'}>
@@ -116,7 +106,7 @@ function Sidebar() {
         )}
 
         {/* Contas */}
-        <li className="menu-item" onClick={() => setContasOpen(!contasOpen)}>
+        <li className="menu-item" onClick={handleContasClick}>
           <FiDollarSign className="icon" />
           Contas {contasOpen ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
         </li>
@@ -136,20 +126,25 @@ function Sidebar() {
           </ul>
         )}
 
+        {/* Notificações */}
         <li>
-          <Link to="/notificacoes" className="sidebar-link">
+          <Link to="/notificacoes" className={location.pathname === '/notificacoes' ? 'active sidebar-link' : 'sidebar-link'}>
             <FiBell className="icon" />
             Notificações
           </Link>
         </li>
+
+        {/* Calendário */}
         <li>
-          <Link to="/calendario" className="sidebar-link">
+          <Link to="/calendario" className={location.pathname === '/calendario' ? 'active sidebar-link' : 'sidebar-link'}>
             <FiCalendar className="icon" />
             Calendário
           </Link>
         </li>
+
+        {/* Configurações */}
         <li>
-          <Link to="/configuracoes" className="sidebar-link">
+          <Link to="/configuracoes" className={location.pathname === '/configuracoes' ? 'active sidebar-link' : 'sidebar-link'}>
             <FiSettings className="icon" />
             Configurações
           </Link>

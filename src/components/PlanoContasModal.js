@@ -23,7 +23,7 @@ function PlanoContasModal({ data, onClose, onSave, modelo }) {
     // Retorna os dados com ID se for edição
     const payload = { ...data, descricao };
 
-    // 🔗 Aqui será enviado ao backend futuramente
+    // Aqui será enviado ao backend futuramente
     onSave(payload);
   };
 

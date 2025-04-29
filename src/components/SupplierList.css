@@ -16,7 +16,7 @@
   margin: 0;
 }
 
-/* Botão "+ Adicionar" pequeno e bonito */
+
 .add-button {
   background-color: #6da972;
   color: white;
@@ -59,7 +59,6 @@ button {
   cursor: pointer;
 }
 
-/* Sidebar de formulário com aparência elegante */
 .form-sidebar {
   width: 360px;
   padding: 30px 24px 40px;
@@ -81,7 +80,7 @@ button {
   font-weight: bold;
 }
 
-/* Inputs dentro do sidebar */
+
 .form-sidebar input {
   padding: 10px;
   border: 1px solid #ddd;
@@ -93,7 +92,7 @@ button {
   width: 100%;
 }
 
-/* Botão de fechar ("X") no topo direito */
+
 .form-sidebar .close-button {
   position: absolute;
   top: 15px;
@@ -115,13 +114,13 @@ button {
   background: #f1b0b7;
 }
 .form-sidebar {
-  width: 320px; /* era 400px */
+  width: 320px; 
   padding: 24px;
   background-color: #fafafa;
   border-left: 1px solid #ddd;
   box-sizing: border-box;
   font-family: 'Nunito', Helvetica, sans-serif;
-  font-size: 14px; /* fonte menor */
+  font-size: 14px; 
   color: #333;
 }
 

@@ -20,7 +20,7 @@ function RecuperarSenhaPage() {
         body: JSON.stringify({ email }),
       });
 
-      // 🔗 BACKEND DJANGO:
+      // BACKEND DJANGO:
       // Endpoint deve validar o email, gerar token e enviar link via email
 
       if (!res.ok) {

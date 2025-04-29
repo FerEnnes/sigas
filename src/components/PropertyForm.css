@@ -20,25 +20,25 @@
   margin-bottom: 16px;
 }
 
-/* Deixa o formulário mais compacto */
+
 form.form-section {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-/* Container para campos lado a lado */
+
 .input-row {
   display: flex;
   gap: 15px;
 }
 
-/* Remove o asterisco automático do label */
+
 .required-wrapper label::after {
   content: none;
 }
 
-/* O contêiner do label e input */
+
 .required-wrapper {
   position: relative;
   display: flex;
@@ -53,7 +53,7 @@ form.form-section {
   margin: 2px 0;
 }
 
-/* Asterisco no canto superior direito do required-wrapper */
+
 .asterisk {
   position: absolute;
   top: 0;
@@ -62,7 +62,7 @@ form.form-section {
   font-weight: bold;
 }
 
-/* Inputs do formulário */
+
 .required-wrapper input {
   height: 36px;
   padding: 6px 10px;
@@ -116,7 +116,7 @@ button[type="submit"]:hover {
   background-color: #5c915f;
 }
 
-/* AQUI controlamos o tamanho relativo de Telefone e CEP */
+
 .telefone-field {
   flex: 3.5;
 }

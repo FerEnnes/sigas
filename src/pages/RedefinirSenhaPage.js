@@ -41,7 +41,7 @@ function RedefinirSenhaPage() {
         body: JSON.stringify({ senha: novaSenha }),
       });
 
-      // 🔗 BACKEND (Django):
+      // BACKEND (Django):
       // Endpoint deve validar o token e atualizar a senha do usuário
 
       if (!res.ok) {
