@@ -14,7 +14,7 @@ function RecuperarSenhaPage() {
     setMensagem('');
 
     try {
-      const res = await fetch('/api/recuperar-senha/', {
+      const res = await fetch('http://127.0.0.1:8000/api/solicitar-redefinicao/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

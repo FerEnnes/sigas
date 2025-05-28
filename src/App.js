@@ -27,6 +27,9 @@ import RecuperarSenhaPage from './pages/RecuperarSenhaPage';
 import RedefinirSenhaPage from './pages/RedefinirSenhaPage';
 import ConfiguracoesPage from './pages/ConfiguracoesPage';
 import NotFoundPage from './pages/NotFoundPage';
+import CadastroUsuario from './pages/NotFoundPage';
+/*import ListaUsuarios from './components/ListaUsuarios';*/
+
 
 function App() {
   return (
@@ -34,9 +37,11 @@ function App() {
       <Router>
         <Routes>
           {/* Públicas */}
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/login" element={<LoginPage />} />          
+          <Route path="/primeiro-cadastro" element={<CadastroUsuario />} />
           <Route path="/recuperar-senha" element={<RecuperarSenhaPage />} />
-          <Route path="/redefinir-senha/:token" element={<RedefinirSenhaPage />} />
+          <Route path="/redefinir-senha/:uid/:token" element={<RedefinirSenhaPage />} />
+          {/*<Route path="/usuarios" element={<ListaUsuarios />} />}
 
           {/* Protegidas */}
           <Route path="/" element={<PrivateRoute><Navigate to="/dashboard" /></PrivateRoute>} />

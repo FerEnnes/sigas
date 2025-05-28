@@ -5,7 +5,7 @@ import logo from '../assets/Logo.png';
 import imagemRural from '../assets/adult-harvesting-coffee1.jpg';
 
 function RedefinirSenhaPage() {
-  const { token } = useParams(); // Token do link enviado por email
+  const { uid, token } = useParams(); // Token do link enviado por email
   const navigate = useNavigate();
 
   const [novaSenha, setNovaSenha] = useState('');
@@ -35,7 +35,7 @@ function RedefinirSenhaPage() {
     }
 
     try {
-      const res = await fetch(`/api/redefinir-senha/${token}/`, {
+      const res = await fetch(`http://localhost:8000/api/redefinir-senha/${uid}/${token}/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ senha: novaSenha }),
