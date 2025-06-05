@@ -39,7 +39,7 @@ function ClienteForm({ onSaveSuccess }) {
           name: data.nome || '',
           email: data.email || '',
           cpf: data.cpf_cnpj || '',
-          telefone: '', // Adapte se tiver esse campo no model
+          telefone: '',
           rua: data.logradouro || '',
           numero: data.numero || '',
           complemento: data.complemento || '',
@@ -169,7 +169,6 @@ function ClienteForm({ onSaveSuccess }) {
     e.preventDefault();
     if (!validarCampos()) return;
 
-    // Mapeando o payload conforme backend
     const payload = {
       nome: form.name,
       email: form.email,
