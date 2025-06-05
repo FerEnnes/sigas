@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import './SupplierForm.css'; 
+import { createClient, updateClient, getClient } from '../services/clienteService';
 
-function ClienteForm() {
+function ClienteForm({ onSaveSuccess }) {
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const isEdit = useMemo(() => params.get('edit') === 'true', [params]);
 
@@ -22,23 +23,39 @@ function ClienteForm() {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (isEdit) {
-      // [BACKEND] GET: Buscar dados do cliente para edição (via ID) no Django
-      setForm({
-        name: params.get('name') || '',
-        email: params.get('email') || '',
-        cpf: params.get('cpf') || '',
-        telefone: params.get('telefone') || '',
-        rua: params.get('rua') || '',
-        numero: params.get('numero') || '',
-        bairro: params.get('bairro') || '',
-        cidade: params.get('cidade') || '',
-        estado: params.get('estado') || '',
-        cep: params.get('cep') || '',
-        complemento: params.get('complemento') || ''
-      });
-    }
-  }, [isEdit, params]);
+  if (isEdit) {
+    const id = params.get('idcliente');
+    if (!id) return;
+
+    const fetchCliente = async () => {
+      try {
+        const res = await getClient(id);
+        const data = res.data;
+
+        const formatCep = data.cep?.replace(/\D/g, '')
+          .replace(/^(\d{5})(\d)/, '$1-$2');
+
+        setForm({
+          name: data.nome || '',
+          email: data.email || '',
+          cpf: data.cpf_cnpj || '',
+          telefone: '', // Adapte se tiver esse campo no model
+          rua: data.logradouro || '',
+          numero: data.numero || '',
+          complemento: data.complemento || '',
+          bairro: data.bairro || '',
+          cep: formatCep || '',
+          cidade: data.cidade || '',
+          estado: data.estado || ''
+        });
+      } catch (err) {
+        console.error('Erro ao buscar cliente:', err);
+      }
+    };
+
+    fetchCliente();
+  }
+}, [isEdit, params]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -148,17 +165,42 @@ function ClienteForm() {
     return Object.keys(novosErros).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validarCampos()) return;
 
-    if (isEdit) {
-      // [BACKEND] PUT: Atualizar cliente no backend via Django
-    } else {
-      // [BACKEND] POST: Enviar novo cliente para o backend via Django
-    }
+    // Mapeando o payload conforme backend
+    const payload = {
+      nome: form.name,
+      email: form.email,
+      cpf_cnpj: form.cpf,
+      telefone: form.telefone,
+      rua: form.rua,
+      numero: form.numero,
+      bairro: form.bairro,
+      cidade: form.cidade,
+      estado: form.estado,
+      cep: form.cep,
+      complemento: form.complemento
+    };
 
-    alert(isEdit ? 'Cliente editado!' : 'Cliente cadastrado!');
+    try {
+      if (isEdit) {
+        const id = params.get('idcliente');
+        await updateClient(id, payload);
+        alert('Cliente editado com sucesso!');
+      } else {
+        await createClient(payload);
+        alert('Cliente cadastrado com sucesso!');
+      }
+
+      if (typeof onSaveSuccess === 'function') {
+        onSaveSuccess();
+      }
+    } catch (error) {
+      console.error('Erro ao salvar cliente:', error);
+      alert('Erro ao salvar cliente. Verifique os dados e tente novamente.');
+    }
   };
 
   const renderInput = (name, label, onBlur) => (

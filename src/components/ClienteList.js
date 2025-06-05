@@ -1,27 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getClients } from '../services/clienteService';
 import ClienteDetails from './ClienteDetails';
 import ClienteForm from './ClienteForm';
 import './SupplierList.css';
 
-// [BACKEND] GET: Buscar lista de clientes do backend via Django
 function ClienteList() {
+  const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
-  const clients = [
-    {
-      name: 'Maria Silva',
-      email: 'maria@email.com',
-      telefone: '(11) 99999-0000',
-      cpf: '123.456.789-00',
-      rua: 'Rua das Flores',
-      numero: '100',
-      bairro: 'Centro',
-      cidade: 'São Paulo',
-      estado: 'SP',
-      cep: '01000-000'
+  useEffect(() => {
+    fetchClientes();
+  }, []);
+
+  const fetchClientes = async () => {
+    try {
+      const res = await getClients();
+      setClients(res.data);
+    } catch (error) {
+      console.error('Erro ao buscar clientes:', error);
     }
-  ];
+  };
 
   return (
     <div style={{ display: 'flex', width: '100%' }}>
@@ -44,8 +43,8 @@ function ClienteList() {
           </thead>
           <tbody>
             {clients.map((c, index) => (
-              <tr key={index}>
-                <td>{c.name}</td>
+              <tr key={c.idcliente || index}>
+                <td>{c.nome}</td>
                 <td>{c.email}</td>
                 <td>{c.cpf}</td>
                 <td>
@@ -72,7 +71,12 @@ function ClienteList() {
         <div className="form-sidebar">
           <button className="close-button" onClick={() => setShowForm(false)}>×</button>
           <h3>Cadastrar cliente</h3>
-          <ClienteForm />
+          <ClienteForm
+            onSaveSuccess={() => {
+              setShowForm(false);
+              fetchClientes();
+            }}
+          />
         </div>
       )}
     </div>
