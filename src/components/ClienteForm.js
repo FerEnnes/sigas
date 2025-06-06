@@ -174,7 +174,7 @@ function ClienteForm({ onSaveSuccess }) {
       email: form.email,
       cpf_cnpj: form.cpf,
       telefone: form.telefone,
-      rua: form.rua,
+      logradouro: form.rua,
       numero: form.numero,
       bairro: form.bairro,
       cidade: form.cidade,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getClients } from '../services/clienteService';
+import { getClients, getClient } from '../services/clienteService';
 import ClienteDetails from './ClienteDetails';
 import ClienteForm from './ClienteForm';
 import './SupplierList.css';
@@ -21,6 +21,15 @@ function ClienteList() {
       console.error('Erro ao buscar clientes:', error);
     }
   };
+
+  const handleViewClient = async (idcliente) => {
+  try {
+    const res = await getClient(idcliente);
+    setSelectedClient(res.data);
+  } catch (err) {
+    console.error('Erro ao buscar cliente completo:', err);
+  }
+};
 
   return (
     <div style={{ display: 'flex', width: '100%' }}>
@@ -46,9 +55,9 @@ function ClienteList() {
               <tr key={c.idcliente || index}>
                 <td>{c.nome}</td>
                 <td>{c.email}</td>
-                <td>{c.cpf}</td>
+                <td>{c.cpf_cnpj}</td>
                 <td>
-                  <button onClick={() => setSelectedClient(c)}>Ver</button>
+                  <button onClick={() => handleViewClient(c.idcliente)}>Ver</button>
                 </td>
               </tr>
             ))}
