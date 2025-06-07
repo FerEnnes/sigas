@@ -1,41 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './PropertyList.css';
 import PropertyDetails from './PropertyDetails';
 import PropertyForm from './PropertyForm';
+import { getProperties, getProperty } from '../services/propriedadeService';
 
 function PropertyList() {
+  const [properties, setProperties] = useState([]);
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
-  // [BACKEND] GET: Esta lista virá do backend via Django futuramente
-  const properties = [
-    {
-      name: 'Fazenda Boa Vista',
-      email: 'fazenda@example.com',
-      cpf: '123.456.789-00',
-      telefone: '(49) 99999-0000',
-      rua: 'Estrada Rural',
-      numero: '100',
-      bairro: 'Zona Sul',
-      cidade: 'Chapecó',
-      estado: 'SC',
-      cep: '89800-000',
-      complemento: 'Sítio próximo ao rio'
-    },
-    {
-      name: 'Sítio Alegria',
-      email: 'fazenda@example.com',
-      cpf: '123.456.789-00',
-      telefone: '(49) 99999-0000',
-      rua: 'Linha São João',
-      numero: '75',
-      bairro: 'Interior',
-      cidade: 'Concórdia',
-      estado: 'SC',
-      cep: '89700-000',
-      complemento: ''
+  useEffect(() => {
+    fetchProperties();
+  }, []);
+
+  const fetchProperties = async () => {
+    try {
+      const res = await getProperties();
+      setProperties(res.data);
+    } catch (error) {
+      console.error('Erro ao buscar propriedades:', error);
     }
-  ];
+  };
+
+  const handleViewProperty = async (idpropriedade) => {
+  try {
+    const res = await getProperty(idpropriedade);
+    setSelectedProperty(res.data);
+  } catch (err) {
+    console.error('Erro ao buscar propriedade completa:', err);
+  }
+};
 
   return (
     <div style={{ display: 'flex', width: '100%' }}>
@@ -58,10 +52,10 @@ function PropertyList() {
           <tbody>
             {properties.map((p, index) => (
               <tr key={index}>
-                <td>{p.name}</td>
+                <td>{p.descricao}</td>
                 <td>{p.cidade}</td>
                 <td>
-                  <button onClick={() => setSelectedProperty(p)}>Ver</button>
+                  <button onClick={() => handleViewProperty(p.idpropriedade)}>Ver</button>
                 </td>
               </tr>
             ))}
@@ -84,7 +78,12 @@ function PropertyList() {
         <div className="form-sidebar">
           <button className="close-button" onClick={() => setShowForm(false)}>×</button>
           <h3>Cadastrar propriedade</h3>
-          <PropertyForm />
+          <PropertyForm
+            onSaveSuccess={() => {
+              setShowForm(false);
+              fetchProperties();
+            }}
+          />
         </div>
       )}
     </div>

@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import './SupplierForm.css';
+import { createSupplier, updateSupplier, getSupplier } from '../services/fornecedorService';
 
-function SupplierForm() {
+function SupplierForm({ onSaveSuccess }) {
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const isEdit = useMemo(() => params.get('edit') === 'true', [params]);
 
@@ -23,20 +24,36 @@ function SupplierForm() {
 
   useEffect(() => {
     if (isEdit) {
-      // [BACKEND] GET: Buscar dados do fornecedor para edição via Django
-      setForm({
-        name: params.get('name') || '',
-        email: params.get('email') || '',
-        cpf: params.get('cpf') || '',
-        telefone: params.get('telefone') || '',
-        rua: params.get('rua') || '',
-        numero: params.get('numero') || '',
-        bairro: params.get('bairro') || '',
-        cidade: params.get('cidade') || '',
-        estado: params.get('estado') || '',
-        cep: params.get('cep') || '',
-        complemento: params.get('complemento') || ''
-      });
+      const id = params.get('idfornecedor');
+      if (!id) return;
+
+      const fetchFornecedor = async () => {
+        try {
+          const res = await getSupplier(id);
+          const data = res.data;
+
+          const formatCep = data.cep?.replace(/\D/g, '')
+            .replace(/^(\d{5})(\d)/, '$1-$2');
+
+          setForm({
+            name: data.nome || '',
+            email: data.email || '',
+            cpf: data.cpf_cnpj || '',
+            telefone: data.telefone || '',
+            rua: data.logradouro || '',
+            numero: data.numero || '',
+            complemento: data.complemento || '',
+            bairro: data.bairro || '',
+            cep: formatCep || '',
+            cidade: data.cidade || '',
+            estado: data.estado || ''
+          });
+        } catch (err) {
+          console.error('Erro ao buscar fornecedor:', err);
+        }
+      };
+
+      fetchFornecedor();
     }
   }, [isEdit, params]);
 
@@ -150,13 +167,58 @@ function SupplierForm() {
     return Object.keys(novosErros).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validarCampos()) return;
 
-    // [BACKEND] POST: Cadastrar fornecedor no Django
-    // [BACKEND] PUT: Atualizar fornecedor no Django
-    alert(isEdit ? 'Fornecedor editado!' : 'Fornecedor cadastrado!');
+    const cepSemTraco = form.cep.replace(/-/g, '');
+
+    const payload = {
+      nome: form.name,
+      email: form.email,
+      cpf_cnpj: form.cpf,
+      telefone: form.telefone,
+      logradouro: form.rua,
+      numero: form.numero,
+      bairro: form.bairro,
+      cidade: form.cidade,
+      estado: form.estado,
+      cep: cepSemTraco,
+      complemento: form.complemento
+    };
+
+    console.log('🔍 Enviando payload:', payload);
+
+    try {
+      if (isEdit) {
+        const id = params.get('idfornecedor');
+        if (!id) {
+          alert('ID do fornecedor não encontrado na URL!');
+          return;
+        }
+
+        await updateSupplier(id, payload);
+        alert('Fornecedor editado com sucesso!');
+      } else {
+        await createSupplier(payload);
+        alert('Fornecedor cadastrado com sucesso!');
+      }
+
+      if (typeof onSaveSuccess === 'function') {
+        onSaveSuccess();
+      }
+    } catch (error) {
+      console.error('❌ Erro ao salvar fornecedor:', error);
+
+      if (error.response) {
+        console.error('🛑 Erro do backend:', error.response.data);
+        alert(`Erro ao salvar fornecedor: ${JSON.stringify(error.response.data)}`);
+      } else if (error.request) {
+        alert('Erro de conexão com o servidor.');
+      } else {
+        alert('Erro desconhecido. Tente novamente.');
+      }
+    }
   };
 
   const renderInput = (name, label, onBlur) => (
@@ -169,6 +231,7 @@ function SupplierForm() {
         value={form[name]}
         onChange={handleChange}
         onBlur={onBlur}
+        maxLength={name === 'cep' ? 9 : undefined}
       />
       {errors[name] && <small className="error">{errors[name]}</small>}
     </div>

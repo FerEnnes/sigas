@@ -23,39 +23,39 @@ function ClienteForm({ onSaveSuccess }) {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-  if (isEdit) {
-    const id = params.get('idcliente');
-    if (!id) return;
+    if (isEdit) {
+      const id = params.get('idcliente');
+      if (!id) return;
 
-    const fetchCliente = async () => {
-      try {
-        const res = await getClient(id);
-        const data = res.data;
+      const fetchCliente = async () => {
+        try {
+          const res = await getClient(id);
+          const data = res.data;
 
-        const formatCep = data.cep?.replace(/\D/g, '')
-          .replace(/^(\d{5})(\d)/, '$1-$2');
+          const formatCep = data.cep?.replace(/\D/g, '')
+            .replace(/^(\d{5})(\d)/, '$1-$2');
 
-        setForm({
-          name: data.nome || '',
-          email: data.email || '',
-          cpf: data.cpf_cnpj || '',
-          telefone: '',
-          rua: data.logradouro || '',
-          numero: data.numero || '',
-          complemento: data.complemento || '',
-          bairro: data.bairro || '',
-          cep: formatCep || '',
-          cidade: data.cidade || '',
-          estado: data.estado || ''
-        });
-      } catch (err) {
-        console.error('Erro ao buscar cliente:', err);
-      }
-    };
+          setForm({
+            name: data.nome || '',
+            email: data.email || '',
+            cpf: data.cpf_cnpj || '',
+            telefone: data.telefone || '',
+            rua: data.logradouro || '',
+            numero: data.numero || '',
+            complemento: data.complemento || '',
+            bairro: data.bairro || '',
+            cep: formatCep || '',
+            cidade: data.cidade || '',
+            estado: data.estado || ''
+          });
+        } catch (err) {
+          console.error('Erro ao buscar cliente:', err);
+        }
+      };
 
-    fetchCliente();
-  }
-}, [isEdit, params]);
+      fetchCliente();
+    }
+  }, [isEdit, params]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -83,7 +83,7 @@ function ClienteForm({ onSaveSuccess }) {
         rua: data.logradouro,
         bairro: data.bairro,
         cidade: data.localidade,
-        estado: data.uf
+        estado: data.uf,
       }));
     } catch (err) {
       console.error('Erro ao buscar CEP:', err);
@@ -129,20 +129,20 @@ function ClienteForm({ onSaveSuccess }) {
   const validateCNPJ = (cnpj) => {
     cnpj = cnpj.replace(/[^\d]+/g, '');
     if (cnpj.length !== 14) return false;
-    let t = cnpj.length - 2;
-    const d1 = parseInt(cnpj.charAt(t));
-    const d2 = parseInt(cnpj.charAt(t + 1));
-    const calc = (x) => {
-      let n = cnpj.substring(0, x);
-      let y = x - 7;
-      let s = 0;
-      for (let i = x; i >= 1; i--) {
-        s += n.charAt(x - i) * y--;
-        if (y < 2) y = 9;
-      }
-      let r = 11 - (s % 11);
-      return r > 9 ? 0 : r;
-    };
+    let t = cnpj.length - 2,
+        d1 = parseInt(cnpj.charAt(t)),
+        d2 = parseInt(cnpj.charAt(t + 1)),
+        calc = (x) => {
+          let n = cnpj.substring(0, x),
+              y = x - 7,
+              s = 0;
+          for (let i = x; i >= 1; i--) {
+            s += n.charAt(x - i) * y--;
+            if (y < 2) y = 9;
+          }
+          let r = 11 - (s % 11);
+          return r > 9 ? 0 : r;
+        };
     return calc(t) === d1 && calc(t + 1) === d2;
   };
 
@@ -152,6 +152,7 @@ function ClienteForm({ onSaveSuccess }) {
     obrigatorios.forEach((campo) => {
       if (!form[campo]?.trim()) novosErros[campo] = 'Campo obrigatório';
     });
+
     const isCPF = form.cpf.replace(/\D/g, '').length === 11;
     const isCNPJ = form.cpf.replace(/\D/g, '').length === 14;
     if (!isCPF && !isCNPJ) {
@@ -161,6 +162,7 @@ function ClienteForm({ onSaveSuccess }) {
     } else if (isCNPJ && !validateCNPJ(form.cpf)) {
       novosErros.cpf = 'CNPJ inválido';
     }
+
     setErrors(novosErros);
     return Object.keys(novosErros).length === 0;
   };
@@ -169,6 +171,8 @@ function ClienteForm({ onSaveSuccess }) {
     e.preventDefault();
     if (!validarCampos()) return;
 
+    const cepSemTraco = form.cep.replace(/-/g, '');
+
     const payload = {
       nome: form.name,
       email: form.email,
@@ -176,16 +180,22 @@ function ClienteForm({ onSaveSuccess }) {
       telefone: form.telefone,
       logradouro: form.rua,
       numero: form.numero,
+      complemento: form.complemento,
       bairro: form.bairro,
       cidade: form.cidade,
       estado: form.estado,
-      cep: form.cep,
-      complemento: form.complemento
+      cep: cepSemTraco,
     };
+
+    console.log('🔍 Enviando payload:', payload);
 
     try {
       if (isEdit) {
         const id = params.get('idcliente');
+        if (!id) {
+          alert('ID do cliente não encontrado na URL!');
+          return;
+        }
         await updateClient(id, payload);
         alert('Cliente editado com sucesso!');
       } else {
@@ -197,8 +207,16 @@ function ClienteForm({ onSaveSuccess }) {
         onSaveSuccess();
       }
     } catch (error) {
-      console.error('Erro ao salvar cliente:', error);
-      alert('Erro ao salvar cliente. Verifique os dados e tente novamente.');
+      console.error('❌ Erro ao salvar cliente:', error);
+
+      if (error.response) {
+        console.error('🛑 Erro do backend:', error.response.data);
+        alert(`Erro ao salvar cliente: ${JSON.stringify(error.response.data)}`);
+      } else if (error.request) {
+        alert('Erro de conexão com o servidor.');
+      } else {
+        alert('Erro desconhecido. Tente novamente.');
+      }
     }
   };
 
@@ -212,6 +230,7 @@ function ClienteForm({ onSaveSuccess }) {
         value={form[name]}
         onChange={handleChange}
         onBlur={onBlur}
+        maxLength={name === 'cep' ? 9 : undefined}
       />
       {errors[name] && <small className="error">{errors[name]}</small>}
     </div>
@@ -223,30 +242,27 @@ function ClienteForm({ onSaveSuccess }) {
       <form className="form-section" onSubmit={handleSubmit}>
         {renderInput('name', 'Nome Completo')}
         {renderInput('cpf', 'CPF / CNPJ', handleCNPJBlur)}
+        {renderInput('telefone', 'Telefone')}
         {renderInput('email', 'Email')}
-
-        <div className="input-row">
-          <div className="telefone-field">
-            {renderInput('telefone', 'Telefone')}
-          </div>
-          <div className="cep-field">
-            {renderInput('cep', 'CEP', handleCepBlur)}
-          </div>
+        {renderInput('cep', 'CEP', handleCepBlur)}
+        {renderInput('rua', 'Rua')}
+        {renderInput('numero', 'Número')}
+        <div>
+          <label htmlFor="complemento">Complemento</label>
+          <input
+            id="complemento"
+            name="complemento"
+            value={form.complemento}
+            onChange={handleChange}
+          />
         </div>
-
-        {renderInput('rua', 'Logradouro')}
-
-        <div className="input-row">
-          {renderInput('numero', 'Número')}
-          {renderInput('complemento', 'Complemento')}
-        </div>
-
         {renderInput('bairro', 'Bairro')}
         {renderInput('cidade', 'Cidade')}
         {renderInput('estado', 'Estado')}
 
-        <p className="note-obrigatorio">* campo obrigatório</p>
-        <button type="submit">{isEdit ? 'Salvar alterações' : 'Adicionar cliente'}</button>
+        <button type="submit" className="btn btn-primary">
+          {isEdit ? 'Editar' : 'Cadastrar'}
+        </button>
       </form>
     </div>
   );

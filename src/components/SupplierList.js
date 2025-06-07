@@ -1,41 +1,35 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { getSuppliers, getSupplier } from '../services/fornecedorService';
 import './SupplierList.css';
 import SupplierDetails from './SupplierDetails';
 import SupplierForm from './SupplierForm';
 
 function SupplierList() {
+  const [suppliers, setSuppliers] = useState([]);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const navigate = useNavigate();
 
-  // [BACKEND] GET: Substituir por dados vindos da API do Django
-  const suppliers = [
-    {
-      name: 'John Deo',
-      email: 'johndoe2211@gmail.com',
-      telefone: '(49) 99999-0000',
-      cpf: '111.111.111-11',
-      rua: 'João Nestor',
-      numero: '42',
-      bairro: 'Lídia',
-      cidade: 'Camboriú',
-      estado: 'SC',
-      cep: '883330-333',
-    },
-    {
-      name: 'Shelby Goode',
-      email: 'shelbygoode41@gmail.com',
-      telefone: '(49) 99999-0000',
-      cpf: '111.111.111-11',
-      rua: 'Rua X',
-      numero: '123',
-      bairro: 'Centro',
-      cidade: 'Florianópolis',
-      estado: 'SC',
-      cep: '88000-000',
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
+
+  const fetchSuppliers = async () => {
+    try {
+      const res = await getSuppliers();
+      setSuppliers(res.data);
+    } catch (error) {
+      console.error('Erro ao buscar fornecedores:', error);
     }
-  ];
+  };
+
+  const handleViewSupplier = async (idfornecedor) => {
+  try {
+    const res = await getSupplier(idfornecedor);
+    setSelectedSupplier(res.data);
+  } catch (err) {
+    console.error('Erro ao buscar fornecedor completo:', err);
+  }
+};
 
   return (
     <div style={{ display: 'flex', width: '100%' }}>
@@ -59,11 +53,11 @@ function SupplierList() {
           <tbody>
             {suppliers.map((s, index) => (
               <tr key={index}>
-                <td>{s.name}</td>
+                <td>{s.nome}</td>
                 <td>{s.email}</td>
-                <td>{s.cpf}</td>
+                <td>{s.cpf_cnpj}</td>
                 <td>
-                  <button onClick={() => setSelectedSupplier(s)}>Ver</button>
+                  <button onClick={() => handleViewSupplier(s.idfornecedor)}>Ver</button>
                 </td>
               </tr>
             ))}
@@ -76,9 +70,8 @@ function SupplierList() {
           supplier={selectedSupplier}
           onClose={() => setSelectedSupplier(null)}
           onEdit={(s) => {
-            // [BACKEND] Editar fornecedor via formulário com dados carregados da API
             const query = new URLSearchParams({ ...s, edit: 'true' }).toString();
-            navigate(`/fornecedores/cadastrar?${query}`);
+            window.location.href = `/fornecedores/cadastrar?${query}`;
           }}
         />
       )}
@@ -86,12 +79,18 @@ function SupplierList() {
       {showForm && (
         <div className="form-sidebar">
           <button className="close-button" onClick={() => setShowForm(false)}>×</button>
-          <h3>Cadastrar fornecedores</h3>
-          <SupplierForm />
+          <h3>Cadastrar fornecedor</h3>
+          <SupplierForm
+            onSaveSuccess={() => {
+              setShowForm(false);
+              fetchSuppliers();
+            }}
+          />
         </div>
       )}
     </div>
   );
 }
+
 
 export default SupplierList;

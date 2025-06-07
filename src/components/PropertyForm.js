@@ -1,14 +1,13 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import './PropertyForm.css';
+import { createProperty, updateProperty, getProperty } from '../services/propriedadeService';
 
-function PropertyForm() {
+function PropertyForm({ onSaveSuccess }) {
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const isEdit = useMemo(() => params.get('edit') === 'true', [params]);
 
   const [form, setForm] = useState({
     name: '',
-    email: '',
-    cpf: '',
     telefone: '',
     rua: '',
     numero: '',
@@ -23,26 +22,39 @@ function PropertyForm() {
 
   useEffect(() => {
     if (isEdit) {
-      // [BACKEND] GET: Buscar dados da propriedade para edição via Django
-      setForm({
-        name: params.get('name') || '',
-        email: params.get('email') || '',
-        cpf: params.get('cpf') || '',
-        telefone: params.get('telefone') || '',
-        rua: params.get('rua') || '',
-        numero: params.get('numero') || '',
-        bairro: params.get('bairro') || '',
-        cidade: params.get('cidade') || '',
-        estado: params.get('estado') || '',
-        cep: params.get('cep') || '',
-        complemento: params.get('complemento') || ''
-      });
+      const id = params.get('idpropriedade');
+      if (!id) return;
+
+      const fetchPropriedade = async () => {
+        try {
+          const res = await getProperty(id);
+          const data = res.data;
+
+          const formatCep = data.cep?.replace(/\D/g, '')
+            .replace(/^(\d{5})(\d)/, '$1-$2');
+
+          setForm({
+            name: data.descricao || '',
+            telefone: data.telefone || '',
+            rua: data.logradouro || '',
+            numero: data.numero || '',
+            bairro: data.bairro || '',
+            cidade: data.cidade || '',
+            estado: data.estado || '',
+            cep: formatCep || '',
+            complemento: data.complemento || ''
+          });
+        } catch (err) {
+          console.error('Erro ao buscar propriedade:', err);
+        }
+      };
+
+      fetchPropriedade();
     }
   }, [isEdit, params]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name === 'telefone') {
       const formatted = value
         .replace(/\D/g, '')
@@ -58,12 +70,10 @@ function PropertyForm() {
   const handleCepBlur = async () => {
     const cep = form.cep.replace(/\D/g, '');
     if (cep.length !== 8) return;
-
     try {
       const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
       const data = await res.json();
       if (data.erro) return;
-
       setForm((prev) => ({
         ...prev,
         rua: data.logradouro,
@@ -76,71 +86,9 @@ function PropertyForm() {
     }
   };
 
-  const handleCNPJBlur = async () => {
-    const cnpj = form.cpf.replace(/\D/g, '');
-    if (cnpj.length !== 14) return;
-
-    try {
-      const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
-      if (!res.ok) throw new Error('CNPJ não encontrado');
-
-      const data = await res.json();
-
-      setForm((prev) => ({
-        ...prev,
-        name: data.razao_social || prev.name,
-        rua: data.logradouro || prev.rua,
-        bairro: data.bairro || prev.bairro,
-        cidade: data.municipio || prev.cidade,
-        estado: data.uf || prev.estado,
-        cep: data.cep?.replace(/\D/g, '') || prev.cep
-      }));
-    } catch (err) {
-      console.error('Erro ao buscar CNPJ:', err);
-    }
-  };
-
-  const validateCPF = (cpf) => {
-    cpf = cpf.replace(/[^\d]+/g, '');
-    if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
-    let sum = 0;
-    for (let i = 0; i < 9; i++) sum += parseInt(cpf.charAt(i)) * (10 - i);
-    let rev = 11 - (sum % 11);
-    if (rev >= 10) rev = 0;
-    if (rev !== parseInt(cpf.charAt(9))) return false;
-    sum = 0;
-    for (let i = 0; i < 10; i++) sum += parseInt(cpf.charAt(i)) * (11 - i);
-    rev = 11 - (sum % 11);
-    if (rev >= 10) rev = 0;
-    return rev === parseInt(cpf.charAt(10));
-  };
-
-  const validateCNPJ = (cnpj) => {
-    cnpj = cnpj.replace(/[^\d]+/g, '');
-    if (cnpj.length !== 14) return false;
-    let t = cnpj.length - 2,
-      d = cnpj.substring(t),
-      d1 = parseInt(d.charAt(0)),
-      d2 = parseInt(d.charAt(1)),
-      calc = (x) => {
-        let n = cnpj.substring(0, x),
-          y = x - 7,
-          s = 0,
-          r = 0;
-        for (let i = x; i >= 1; i--) {
-          s += n.charAt(x - i) * y--;
-          if (y < 2) y = 9;
-        }
-        r = 11 - (s % 11);
-        return r > 9 ? 0 : r;
-      };
-    return calc(t) === d1 && calc(t + 1) === d2;
-  };
-
   const validarCampos = () => {
     const obrigatorios = [
-      'name', 'email', 'cpf', 'telefone',
-      'rua', 'numero', 'bairro', 'cidade', 'estado', 'cep'
+      'name', 'telefone', 'rua', 'numero', 'bairro', 'cidade', 'estado', 'cep'
     ];
     const novosErros = {};
 
@@ -150,32 +98,60 @@ function PropertyForm() {
       }
     });
 
-    const isCPF = form.cpf.replace(/\D/g, '').length === 11;
-    const isCNPJ = form.cpf.replace(/\D/g, '').length === 14;
-
-    if (!isCPF && !isCNPJ) {
-      novosErros.cpf = 'Informe CPF (11 dígitos) ou CNPJ (14 dígitos)';
-    } else if (isCPF && !validateCPF(form.cpf)) {
-      novosErros.cpf = 'CPF inválido';
-    } else if (isCNPJ && !validateCNPJ(form.cpf)) {
-      novosErros.cpf = 'CNPJ inválido';
-    }
-
     setErrors(novosErros);
     return Object.keys(novosErros).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validarCampos()) return;
 
-    if (isEdit) {
-      // [BACKEND] PUT: Atualizar propriedade existente via Django
-    } else {
-      // [BACKEND] POST: Criar nova propriedade via Django
-    }
+    const cepSemTraco = form.cep.replace(/-/g, '');
 
-    alert(isEdit ? 'Propriedade editada!' : 'Propriedade cadastrada!');
+    const payload = {
+      descricao: form.name,
+      telefone: form.telefone,
+      logradouro: form.rua,
+      numero: form.numero,
+      bairro: form.bairro,
+      cidade: form.cidade,
+      estado: form.estado,
+      cep: cepSemTraco,
+      complemento: form.complemento
+    };
+
+    console.log('🔍 Enviando payload:', payload);
+
+    try {
+      if (isEdit) {
+        const id = params.get('idpropriedade');
+        if (!id) {
+          alert('ID da propriedade não encontrado na URL!');
+          return;
+        }
+
+        await updateProperty(id, payload);
+        alert('Propriedade editada com sucesso!');
+      } else {
+        await createProperty(payload);
+        alert('Propriedade cadastrada com sucesso!');
+      }
+
+      if (typeof onSaveSuccess === 'function') {
+        onSaveSuccess();
+      }
+    } catch (error) {
+      console.error('❌ Erro ao salvar propriedade:', error);
+
+      if (error.response) {
+        console.error('🛑 Erro do backend:', error.response.data);
+        alert(`Erro ao salvar propriedade: ${JSON.stringify(error.response.data)}`);
+      } else if (error.request) {
+        alert('Erro de conexão com o servidor.');
+      } else {
+        alert('Erro desconhecido. Tente novamente.');
+      }
+    }
   };
 
   const renderInput = (name, label, onBlur) => (
@@ -188,6 +164,7 @@ function PropertyForm() {
         value={form[name]}
         onChange={handleChange}
         onBlur={onBlur}
+        maxLength={name === 'cep' ? 9 : undefined}
       />
       {errors[name] && <small className="error">{errors[name]}</small>}
     </div>
@@ -198,8 +175,6 @@ function PropertyForm() {
       <h3>{isEdit ? 'Editar propriedade' : 'Cadastrar propriedades'}</h3>
       <form className="form-section" onSubmit={handleSubmit}>
         {renderInput('name', 'Nome (descrição)')}
-        {renderInput('cpf', 'CPF / CNPJ', handleCNPJBlur)}
-        {renderInput('email', 'Email')}
 
         <div className="input-row">
           <div className="telefone-field">
