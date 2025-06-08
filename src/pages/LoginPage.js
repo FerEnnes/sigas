@@ -14,19 +14,42 @@ function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    axios.post('http://127.0.0.1:8000/api/token/', {
+    
+      //toast.success('Login realizado com sucesso!');
+ try {
+    const response = await axios.post('http://127.0.0.1:8000/api/token/', {
       username: username,
       password: senha,
-    }).then((response) => {
-      //toast.success('Login realizado com sucesso!');
-      localStorage.setItem("token", response.data.access);
-      window.location.href = "/dashboard";
-    }).catch((error) => {
-      console.error('Erro no login:', error);
-      toast.error('Username ou senha inválidos!');
     });
-  };
+
+    const token = response.data.access;
+    localStorage.setItem("token", token);
+
+    // ✅ FAZ UMA NOVA REQUISIÇÃO PARA BUSCAR DADOS DO USUÁRIO
+    const userResponse = await axios.get('http://127.0.0.1:8000/api/usuario-logado/', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    });
+
+    const userData = userResponse.data;
+
+    // ✅ Armazena os dados relevantes no localStorage
+    localStorage.setItem("id", userData.id);
+    localStorage.setItem("username", userData.username);
+    localStorage.setItem("tipousuario", userData.tipousuario);
+    localStorage.setItem("nome", userData.first_name + " " + userData.last_name);
+
+    console.log('Login efetuado com sucesso:', userData);
+
+    // Redireciona
+    window.location.href = "/dashboard";
+
+  } catch (error) {
+    console.error('Erro no login:', error);
+    toast.error('Username ou senha inválidos!');
+  }
+};
 
   return (
     <div className="login-page">

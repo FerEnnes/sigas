@@ -36,12 +36,17 @@ function Sidebar() {
   const [cadastrosOpen, setCadastrosOpen] = useState(true);
   const [contasOpen, setContasOpen] = useState(true);
 
-  const tipoUsuario = localStorage.getItem('tipoUsuario');
-  const nomeUsuario = localStorage.getItem('nome') || 'Usuário';
+  const tipoUsuario = localStorage.getItem('tipousuario');
+  const nomeUsuario = localStorage.getItem('nome') || 'Usuario';
+
+  // Checando no console se os dados foram gravados corretamente
+  console.log('Login efetuado, dados armazenados:', {
+    userId: localStorage.getItem('id'),
+    username: localStorage.getItem('username'),
+    tipoUsuario: localStorage.getItem('tipousuario'),
+  });
 
   const handleLogout = () => {
-    // BACKEND (opcional): POST /api/logout para invalidar token
-    // fetch('/api/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
     localStorage.clear();
     window.location.href = '/login';
   };
@@ -54,7 +59,6 @@ function Sidebar() {
   return (
     <div className="sidebar">
       <img src={logo} alt="Logo SAAS AGRO LIGHT" className="logo" />
-      <h2>SAAS AGRO LIGHT</h2>
 
       <ul>
         {/* Dashboard */}
@@ -141,6 +145,24 @@ function Sidebar() {
             Calendário
           </Link>
         </li>
+
+        {/* Itens específicos por tipo de usuário */}
+        {tipoUsuario === '1' && (
+          <li>
+            <Link to="/admin" className={location.pathname === '/admin' ? 'active sidebar-link' : 'sidebar-link'}>
+              <FiSettings className="icon" />
+              Administração
+            </Link>
+          </li>
+        )}
+        {tipoUsuario === '2' && (
+          <li>
+            <Link to="/perfil" className={location.pathname === '/perfil' ? 'active sidebar-link' : 'sidebar-link'}>
+              <FiUser className="icon" />
+              Meu Perfil
+            </Link>
+          </li>
+        )}
 
         {/* Configurações */}
         <li>

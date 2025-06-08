@@ -1,13 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './SupplierForm.css';
 import { toast } from 'react-toastify';
+import { getUser, createUser, updateUser } from '../services/usuarioService';
 
 function UsuarioForm() {
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const isEdit = useMemo(() => params.get('edit') === 'true', [params]);
 
   const [form, setForm] = useState({
-    nome: '',
+    username: '',
+    first_name: '',
+    last_name: '',
     cpf: '',
     email: '',
     telefone: '',
@@ -18,28 +21,43 @@ function UsuarioForm() {
     bairro: '',
     cidade: '',
     estado: '',
-    tipoUsuario: '2'
+    tipousuario: '2',
   });
 
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (isEdit) {
-      //  BACKEND: Substituir com GET real se for o caso
-      setForm({
-        nome: params.get('nome') || '',
-        cpf: params.get('cpf') || '',
-        email: params.get('email') || '',
-        telefone: params.get('telefone') || '',
-        cep: params.get('cep') || '',
-        rua: params.get('rua') || '',
-        numero: params.get('numero') || '',
-        complemento: params.get('complemento') || '',
-        bairro: params.get('bairro') || '',
-        cidade: params.get('cidade') || '',
-        estado: params.get('estado') || '',
-        tipoUsuario: params.get('tipoUsuario') || '2'
-      });
+      const id = params.get('id');
+      if (!id) return;
+
+      const fetchUser = async () => {
+        try {
+          const res = await getUser(id);
+          const data = res.data;
+
+          setForm({
+            username: data.username || '',
+            first_name: data.first_name || '',
+            last_name: data.last_name || '',
+            cpf: data.cpf || '',
+            email: data.email || '',
+            telefone: data.telefone || '',
+            cep: data.cep || '',
+            rua: data.logradouro || '',
+            numero: data.numero || '',
+            complemento: data.complemento || '',
+            bairro: data.bairro || '',
+            cidade: data.cidade || '',
+            estado: data.estado || '',
+            tipousuario: data.tipousuario?.toString() || '2',
+          });
+        } catch (err) {
+          console.error('Erro ao buscar usuário:', err);
+        }
+      };
+
+      fetchUser();
     }
   }, [isEdit, params]);
 
@@ -95,9 +113,10 @@ function UsuarioForm() {
 
   const validarCampos = () => {
     const obrigatorios = [
-      'nome', 'email', 'cpf', 'telefone',
+      'username', 'first_name', 'last_name', 'email', 'cpf', 'telefone',
       'cep', 'rua', 'numero', 'bairro', 'cidade', 'estado'
     ];
+
     const novosErros = {};
 
     obrigatorios.forEach((campo) => {
@@ -122,33 +141,45 @@ function UsuarioForm() {
     e.preventDefault();
     if (!validarCampos()) return;
 
+    const cepSemTraco = form.cep.replace(/-/g, '');
+
+    const payload = {
+      username: form.username,
+      first_name: form.first_name,
+      last_name: form.last_name,
+      email: form.email,
+      cpf: form.cpf,
+      telefone: form.telefone,
+      logradouro: form.rua,
+      numero: form.numero,
+      complemento: form.complemento,
+      bairro: form.bairro,
+      cidade: form.cidade,
+      estado: form.estado,
+      cep: cepSemTraco,
+      tipousuario: parseInt(form.tipousuario, 10),
+    };
+
     try {
       if (isEdit) {
-        //  BACKEND: Atualização de usuário
-        await fetch(`/api/usuarios/${form.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form),
-        });
+        const id = params.get('id');
+        if (!id) {
+          toast.error('ID do usuário não encontrado!');
+          return;
+        }
+
+        await updateUser(id, payload);
         toast.success('Usuário atualizado com sucesso!');
       } else {
-        // BACKEND: Criação de novo usuário com senha provisória
         const senhaProvisoria = gerarSenhaProvisoria();
 
-        const payload = {
-          ...form,
-          senha: senhaProvisoria,            //  Envia senha provisória
-          redefinirSenha: true               //  Backend força troca no primeiro login
+        const novoPayload = {
+          ...payload,
+          password: senhaProvisoria,  // AQUI: campo password
+          redefinirSenha: true,       // Se seu backend usa, senão pode tirar
         };
 
-        const res = await fetch(`/api/usuarios`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-
-        if (!res.ok) throw new Error('Erro ao cadastrar usuário');
-
+        await createUser(novoPayload);
         toast.success(`Usuário cadastrado com sucesso! Senha provisória: ${senhaProvisoria}`);
         console.log('Senha provisória:', senhaProvisoria);
       }
@@ -168,6 +199,7 @@ function UsuarioForm() {
         value={form[name]}
         onChange={handleChange}
         onBlur={onBlur}
+        maxLength={name === 'cep' ? 9 : undefined}
       />
       {errors[name] && <small className="error">{errors[name]}</small>}
     </div>
@@ -177,10 +209,11 @@ function UsuarioForm() {
     <div className="form-container">
       <h3>{isEdit ? 'Editar usuário' : 'Cadastrar usuário'}</h3>
       <form className="form-section" onSubmit={handleSubmit}>
-        {renderInput('nome', 'Nome Completo')}
+        {renderInput('username', 'Usuário')}
+        {renderInput('first_name', 'Nome')}
+        {renderInput('last_name', 'Sobrenome')}
         {renderInput('cpf', 'CPF')}
         {renderInput('email', 'Email')}
-
         <div className="input-row">
           <div className="telefone-field">
             {renderInput('telefone', 'Telefone')}
@@ -189,22 +222,19 @@ function UsuarioForm() {
             {renderInput('cep', 'CEP', handleCepBlur)}
           </div>
         </div>
-
         {renderInput('rua', 'Logradouro')}
-
         <div className="input-row">
           {renderInput('numero', 'Número')}
           {renderInput('complemento', 'Complemento')}
         </div>
-
         {renderInput('bairro', 'Bairro')}
         {renderInput('cidade', 'Cidade')}
         {renderInput('estado', 'Estado')}
 
         <div className="required-wrapper">
-          <label htmlFor="tipoUsuario">Tipo de Usuário</label>
+          <label htmlFor="tipousuario">Tipo de Usuário</label>
           <span className="asterisk">*</span>
-          <select name="tipoUsuario" value={form.tipoUsuario} onChange={handleChange}>
+          <select name="tipousuario" value={form.tipousuario} onChange={handleChange}>
             <option value="2">Comum</option>
             <option value="1">Admin</option>
           </select>
