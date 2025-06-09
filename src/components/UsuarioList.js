@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getUsers, getUser, inactivateUser, activateUser } from '../services/usuarioService';
+import UsuarioDetails from './UsuarioDetails';
 import './SupplierList.css';
 import UsuarioForm from './UsuarioForm';
+import { toast } from 'react-toastify';
 
 function UsuarioList() {
   const [usuarios, setUsuarios] = useState([]);
@@ -10,62 +13,52 @@ function UsuarioList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function fetchUsuarios() {
-      try {
-        const res = await fetch('/api/usuarios'); // 🔗 Backend real
-        if (!res.ok) throw new Error('Sem conexão');
-        const data = await res.json();
-        setUsuarios(data);
-      } catch (error) {
-        console.warn('Usando dados mockados, backend indisponível');
-
-        //  Fallback para testes locais
-        setUsuarios([
-          {
-            id: 1,
-            nome: 'Maria Silva',
-            email: 'maria@email.com',
-            tipoUsuario: 1,
-            telefone: '(11) 99999-0000',
-            ativo: true,
-            cpf: '123.456.789-00',
-            rua: 'Rua das Flores',
-            numero: '100',
-            bairro: 'Centro',
-            cidade: 'São Paulo',
-            estado: 'SP',
-            cep: '01000-000',
-            complemento: ''
-          },
-          {
-            id: 2,
-            nome: 'João Souza',
-            email: 'joao@email.com',
-            tipoUsuario: 2,
-            telefone: '(11) 91234-5678',
-            ativo: false,
-            cpf: '987.654.321-00',
-            rua: '',
-            numero: '',
-            bairro: '',
-            cidade: '',
-            estado: '',
-            cep: '',
-            complemento: ''
-          }
-        ]);
-      }
+     fetchUsuarios();
+   }, []);
+ 
+  const fetchUsuarios = async () => {
+    try {
+      const res = await getUsers();
+      setUsuarios(res.data);
+    } catch (error) {
+      console.error('Erro ao buscar usuários:', error);
     }
-
-    fetchUsuarios();
-  }, []);
-
+  };
+  
+  const handleViewUser = async (id) => {
+    try {
+      const res = await getUser(id);
+      setSelectedUser(res.data);
+    } catch (err) {
+      console.error('Erro ao buscar usuário completo:', err);
+    }
+  };
+  
   const handleInativar = async (id) => {
     try {
-      await fetch(`/api/usuarios/${id}/inativar`, { method: 'PUT' }); // 🔗 Backend
-      setUsuarios(prev => prev.map(u => (u.id === id ? { ...u, ativo: false } : u)));
-    } catch (err) {
-      console.error('Erro ao inativar usuário:', err);
+      await inactivateUser(id);
+      toast.success('Usuário inativado com sucesso');
+      fetchUsuarios();
+    } catch (error) {
+      console.error('Erro ao inativar usuário', error);
+      if (error.response) {
+        console.error('🛑 Erro do backend:', error.response.data);
+        toast.error('Erro ao inativar usuário');
+      }
+    }
+  };
+
+  const handleAtivar = async (id) => {
+    try {
+      await activateUser(id);
+      toast.success('Usuário ativado com sucesso');
+      fetchUsuarios();
+    } catch (error) {
+      console.error('Erro ao ativar usuário', error);
+      if (error.response) {
+        console.error('🛑 Erro do backend:', error.response.data);
+        toast.error('Erro ao ativar usuário');
+      }
     }
   };
 
@@ -83,6 +76,7 @@ function UsuarioList() {
           <thead>
             <tr>
               <th>Nome</th>
+              <th>Sobrenome</th>
               <th>Email</th>
               <th>Telefone</th>
               <th>Tipo</th>
@@ -93,27 +87,20 @@ function UsuarioList() {
           <tbody>
             {usuarios.map((user) => (
               <tr key={user.id}>
-                <td>{user.nome}</td>
+                <td>{user.first_name}</td>
+                <td>{user.last_name}</td>
                 <td>{user.email}</td>
                 <td>{user.telefone}</td>
-                <td>{user.tipoUsuario === 1 ? 'Admin' : 'Comum'}</td>
-                <td style={{ color: user.ativo ? 'green' : 'gray' }}>
-                  {user.ativo ? 'Ativo' : 'Inativo'}
+                <td>{parseInt(user.tipousuario) === 1 ? 'Admin' : 'Comum'}</td>
+                <td style={{ color: user.is_active ? 'green' : 'gray' }}>
+                  {user.is_active ? 'Ativo' : 'Inativo'}
                 </td>
                 <td>
-                  <button onClick={() => setSelectedUser(user)}>Ver</button>
-                  <button
-                    onClick={() => {
-                      const query = new URLSearchParams({ ...user, edit: 'true' }).toString();
-                      navigate(`/usuarios/cadastrar?${query}`);
-                    }}
-                  >
-                    Editar
-                  </button>
-                  {user.ativo && (
-                    <button onClick={() => handleInativar(user.id)}>
-                      Inativar
-                    </button>
+                  <button onClick={() => handleViewUser(user.id)}>Ver</button>
+                  {user.is_active ? (
+                    <button onClick={() => handleInativar(user.id)}>Inativar</button>
+                  ) : (
+                    <button onClick={() => handleAtivar(user.id)}>Ativar</button>
                   )}
                 </td>
               </tr>
@@ -122,37 +109,27 @@ function UsuarioList() {
         </table>
       </div>
 
-      {/* Detalhes do usuário selecionado */}
       {selectedUser && (
-        <div className="form-sidebar usuario-details">
-          <button className="close-button" onClick={() => setSelectedUser(null)}>×</button>
-          <h3>{selectedUser.nome}</h3>
-          <hr />
-          <h4>Detalhes do usuário</h4>
-          <p><strong>Email:</strong> {selectedUser.email}</p>
-          <p><strong>Telefone:</strong> {selectedUser.telefone}</p>
-          <p><strong>Tipo:</strong> {selectedUser.tipoUsuario === 1 ? 'Administrador' : 'Comum'}</p>
-          <p><strong>Status:</strong> {selectedUser.ativo ? 'Ativo' : 'Inativo'}</p>
-          <p><strong>CPF:</strong> {selectedUser.cpf}</p>
-          <p><strong>Endereço:</strong> {selectedUser.rua}, {selectedUser.numero} - {selectedUser.bairro}, {selectedUser.cidade} - {selectedUser.estado} - {selectedUser.cep}</p>
-          <button
-            onClick={() => {
-              const query = new URLSearchParams({ ...selectedUser, edit: 'true' }).toString();
-              navigate(`/usuarios/cadastrar?${query}`);
-            }}
-            className="add-button"
-            style={{ marginTop: 10 }}
-          >
-            ✏️ Editar
-          </button>
-        </div>
+        <UsuarioDetails
+          usuario={selectedUser}
+          onClose={() => setSelectedUser(null)}
+          onEdit={(user) => {
+            const query = new URLSearchParams({ ...user, edit: 'true' }).toString();
+            window.location.href = `/usuarios/cadastrar?${query}`;
+          }}
+        />
       )}
 
       {showForm && (
         <div className="form-sidebar">
           <button className="close-button" onClick={() => setShowForm(false)}>×</button>
           <h3>Cadastrar usuário</h3>
-          <UsuarioForm />
+          <UsuarioForm
+            onSaveSuccess={() => {
+              setShowForm(false);
+              fetchUsuarios();
+            }}
+          />
         </div>
       )}
     </div>

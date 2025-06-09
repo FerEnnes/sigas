@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './SupplierForm.css';
 import { toast } from 'react-toastify';
-import { getUser, createUser, updateUser } from '../services/usuarioService';
+import { getUser, createUser, updateUser, inactivateUser } from '../services/usuarioService';
+import { useNavigate } from 'react-router-dom';
 
 function UsuarioForm() {
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const isEdit = useMemo(() => params.get('edit') === 'true', [params]);
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
     username: '',
@@ -36,6 +38,9 @@ function UsuarioForm() {
           const res = await getUser(id);
           const data = res.data;
 
+          const formatCep = data.cep?.replace(/\D/g, '')
+            .replace(/^(\d{5})(\d)/, '$1-$2');
+
           setForm({
             username: data.username || '',
             first_name: data.first_name || '',
@@ -43,7 +48,7 @@ function UsuarioForm() {
             cpf: data.cpf || '',
             email: data.email || '',
             telefone: data.telefone || '',
-            cep: data.cep || '',
+            cep: formatCep || '',
             rua: data.logradouro || '',
             numero: data.numero || '',
             complemento: data.complemento || '',
@@ -116,16 +121,15 @@ function UsuarioForm() {
       'username', 'first_name', 'last_name', 'email', 'cpf', 'telefone',
       'cep', 'rua', 'numero', 'bairro', 'cidade', 'estado'
     ];
-
     const novosErros = {};
-
     obrigatorios.forEach((campo) => {
-      if (!form[campo]?.trim()) {
-        novosErros[campo] = 'Campo obrigatório';
-      }
+      if (!form[campo]?.trim()) novosErros[campo] = 'Campo obrigatório';
     });
 
-    if (!validateCPF(form.cpf)) {
+    const isCPF = form.cpf.replace(/\D/g, '').length === 11;
+    if (!isCPF) {
+      novosErros.cpf = 'Informe CPF (11 dígitos)';
+    } else if (isCPF && !validateCPF(form.cpf)) {
       novosErros.cpf = 'CPF inválido';
     }
 
@@ -157,7 +161,7 @@ function UsuarioForm() {
       cidade: form.cidade,
       estado: form.estado,
       cep: cepSemTraco,
-      tipousuario: parseInt(form.tipousuario, 10),
+      tipousuario: parseInt(form.tipousuario, 10)
     };
 
     try {
@@ -167,25 +171,46 @@ function UsuarioForm() {
           toast.error('ID do usuário não encontrado!');
           return;
         }
-
         await updateUser(id, payload);
         toast.success('Usuário atualizado com sucesso!');
+        navigate('/usuarios');
       } else {
         const senhaProvisoria = gerarSenhaProvisoria();
 
         const novoPayload = {
           ...payload,
-          password: senhaProvisoria,  // AQUI: campo password
-          redefinirSenha: true,       // Se seu backend usa, senão pode tirar
+          password: senhaProvisoria,
+          redefinirSenha: true,
         };
 
         await createUser(novoPayload);
         toast.success(`Usuário cadastrado com sucesso! Senha provisória: ${senhaProvisoria}`);
         console.log('Senha provisória:', senhaProvisoria);
       }
-    } catch (err) {
-      console.error('Erro ao salvar usuário:', err);
+    } catch (error) {
+      console.error('Erro ao salvar usuário:', error);
+      if (error.response) {
+        console.error("Detalhes do erro:", error.response.data);
+      }
       toast.error('Erro ao salvar usuário');
+    }
+  };
+
+  // NOVA função para inativar o usuário
+  const handleInactivate = async () => {
+    const id = params.get('id');
+    if (!id) {
+      toast.error('ID do usuário não encontrado!');
+      return;
+    }
+
+    try {
+      await inactivateUser(id);
+      toast.success('Usuário inativado com sucesso!');
+      navigate('/usuarios');
+    } catch (error) {
+      console.error('Erro ao inativar usuário:', error);
+      toast.error('Erro ao inativar usuário');
     }
   };
 
@@ -241,9 +266,22 @@ function UsuarioForm() {
         </div>
 
         <p className="note-obrigatorio">* campo obrigatório</p>
+
         <button type="submit">
           {isEdit ? 'Salvar alterações' : 'Adicionar usuário'}
         </button>
+
+        {/* Botão para inativar só aparece se estiver editando */}
+        {isEdit && (
+          <button
+            type="button"
+            className="btn-inactivate"
+            onClick={handleInactivate}
+            style={{ marginLeft: '10px', backgroundColor: '#e74c3c', color: '#fff' }}
+          >
+            Inativar Usuário
+          </button>
+        )}
       </form>
     </div>
   );
