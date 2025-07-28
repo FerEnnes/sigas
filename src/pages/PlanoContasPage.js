@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import PlanoContasTree from '../components/PlanoContasTree';
 import PlanoContasModal from '../components/PlanoContasModal';
@@ -13,61 +13,16 @@ function PlanoContasPage() {
   const [editData, setEditData] = useState(null);
   const [userTipo] = useState(1); // 1 = Admin, 2 = Colaborador
 
-  //  MOCK DE PLANO SIMPLIFICADO
-  const fakeSimplificado = useCallback(() => [
-    {
-      id: 1,
-      descricao: '1. Ativos',
-      subcontas: [
-        { id: 11, descricao: 'A. Caixa', subcontas: [] },
-        { id: 12, descricao: 'B. Investimentos', subcontas: [] },
-        { id: 13, descricao: 'C. Produtos para revenda', subcontas: [] }
-      ]
-    },
-    {
-      id: 2,
-      descricao: '2. Passivo',
-      subcontas: [
-        { id: 21, descricao: 'A. Impostos', subcontas: [] },
-        { id: 22, descricao: 'B. Empréstimos', subcontas: [] },
-        { id: 23, descricao: 'C. Salários', subcontas: [] }
-      ]
-    }
-  ], []);
-
-  //  MOCK DE PLANO DETALHADO
-  const fakeDetalhado = useCallback(() => [
-    {
-      id: 100,
-      descricao: '1. Ativo',
-      subcontas: [
-        {
-          id: 101,
-          descricao: '1.1 Ativo Circulante',
-          subcontas: [
-            {
-              id: 1011,
-              descricao: '1.1.1 Disponível',
-              subcontas: [
-                { id: 10111, descricao: '1.1.1.1 Caixa', subcontas: [] },
-                { id: 10112, descricao: '1.1.1.2 Conta bancária', subcontas: [] }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ], []);
-
-  //  Carregar plano de contas com base no modelo selecionado
+  // Carrega o plano de contas conforme o modelo selecionado
   useEffect(() => {
-    // FUTURO BACKEND:
-    // fetch(`/api/plano-contas?modelo=${modelo}`)
-    //   .then(res => res.json())
-    //   .then(data => setContas(data))
-
-    setContas(modelo === 1 ? fakeSimplificado() : fakeDetalhado());
-  }, [modelo, fakeSimplificado, fakeDetalhado]);
+    fetch(`/api/plano-de-contas/?modelo=${modelo}`)
+      .then(res => res.json())
+      .then(data => setContas(data))
+      .catch(err => {
+        console.error('Erro ao buscar plano de contas:', err);
+        toast.error('Erro ao carregar plano de contas');
+      });
+  }, [modelo]);
 
   const handleModeloChange = (novoModelo) => {
     setModelo(novoModelo);
@@ -89,12 +44,10 @@ function PlanoContasPage() {
 
   const flattenIds = (items) => {
     let ids = [];
-    for (const item of items) {
+    items.forEach(item => {
       ids.push(item.id);
-      if (Array.isArray(item.subcontas)) {
-        ids = [...ids, ...flattenIds(item.subcontas)];
-      }
-    }
+      if (Array.isArray(item.subcontas)) ids = [...ids, ...flattenIds(item.subcontas)];
+    });
     return ids;
   };
 
@@ -115,10 +68,16 @@ function PlanoContasPage() {
 
         {userTipo === 1 && (
           <div className="modelo-toggle">
-            <button className={modelo === 1 ? 'active' : ''} onClick={() => handleModeloChange(1)}>
+            <button
+              className={modelo === 1 ? 'active' : ''}
+              onClick={() => handleModeloChange(1)}
+            >
               Simplificado
             </button>
-            <button className={modelo === 2 ? 'active' : ''} onClick={() => handleModeloChange(2)}>
+            <button
+              className={modelo === 2 ? 'active' : ''}
+              onClick={() => handleModeloChange(2)}
+            >
               Detalhado
             </button>
           </div>
@@ -133,10 +92,13 @@ function PlanoContasPage() {
         />
 
         {userTipo === 1 && (
-          <button className="add-button" onClick={() => {
-            setEditData(null);
-            setOpenModal(true);
-          }}>
+          <button
+            className="add-button"
+            onClick={() => {
+              setEditData(null);
+              setOpenModal(true);
+            }}
+          >
             + Nova conta
           </button>
         )}

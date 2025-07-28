@@ -1,23 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import GraficoPedidosPeriodo from '../components/GraficoPedidosPeriodo';
 import GraficoAnaliseResumo from '../components/GraficoAnaliseResumo';
+import { toast } from 'react-toastify';
 import './ContasResumoPage.css';
 
 function ContasResumoPage() {
   const [abaAtiva, setAbaAtiva] = useState('pagar');
-
-  // BACKEND futuramente: buscar dados reais de vendas/contas
+  const [pedidos, setPedidos] = useState([]);
+  const [total, setTotal] = useState(0);
   const totalVendido = 500008.74;
-  const totalAPagar = 20348.88;
 
-  const pedidosMockados = [
-    { sn: 1, descricao: 'Semente', valor: 1000, parcelas: 10, total: 10000 },
-    { sn: 2, descricao: 'Adubo', valor: 1500, parcelas: 5, total: 7500 },
-    { sn: 3, descricao: 'Fertilizante', valor: 1000, parcelas: 1, total: 1000 },
-    { sn: 4, descricao: 'Diesel', valor: 1200, parcelas: 10, total: 12000 },
-    { sn: 5, descricao: 'Arame', valor: 1200, parcelas: 2, total: 2400 },
-  ];
+  useEffect(() => {
+    const endpoint = abaAtiva === 'pagar' ? '/api/contas-pagar/' : '/api/contas-receber/';
+    fetch(endpoint)
+      .then((res) => res.json())
+      .then((data) => {
+        setPedidos(data);
+        const soma = data.reduce((acc, item) => acc + parseFloat(item.total || 0), 0);
+        setTotal(soma);
+      })
+      .catch(() => toast.error('Erro ao carregar dados do resumo'));
+  }, [abaAtiva]);
 
   return (
     <div className="app">
@@ -48,7 +52,7 @@ function ContasResumoPage() {
           </div>
           <div className="card">
             <p>Total {abaAtiva === 'pagar' ? 'a pagar' : 'a receber'}</p>
-            <h3>R$ {totalAPagar.toLocaleString('pt-BR')}</h3>
+            <h3>R$ {total.toLocaleString('pt-BR')}</h3>
           </div>
         </div>
 
@@ -77,14 +81,14 @@ function ContasResumoPage() {
               </tr>
             </thead>
             <tbody>
-              {pedidosMockados.map((pedido, index) => (
-                <tr key={index}>
-                  <td>{pedido.sn}</td>
+              {pedidos.map((pedido, index) => (
+                <tr key={pedido.id || index}>
+                  <td>{index + 1}</td>
                   <td>{pedido.descricao}</td>
-                  <td>R$ {pedido.valor.toLocaleString('pt-BR')}</td>
+                  <td>R$ {parseFloat(pedido.valor_parcela).toLocaleString('pt-BR')}</td>
                   <td>{pedido.parcelas}</td>
                   <td style={{ color: 'green' }}>
-                    R$ {pedido.total.toLocaleString('pt-BR')}
+                    R$ {parseFloat(pedido.total).toLocaleString('pt-BR')}
                   </td>
                 </tr>
               ))}

@@ -17,6 +17,11 @@ function ContaForm({ conta, onSave, tipoConta }) {
     planoContas: ''
   });
 
+  const [clientes, setClientes] = useState([]);
+  const [fornecedores, setFornecedores] = useState([]);
+  const [propriedades, setPropriedades] = useState([]);
+  const [planos, setPlanos] = useState([]);
+
   useEffect(() => {
     if (conta) setForm({ ...conta });
   }, [conta]);
@@ -29,6 +34,13 @@ function ContaForm({ conta, onSave, tipoConta }) {
     const total = (valor + juros - desconto) * parcelas;
     setForm((prev) => ({ ...prev, total }));
   }, [form.valorParcela, form.juros, form.desconto, form.parcelas]);
+
+  useEffect(() => {
+    fetch('/api/clientes/').then(res => res.json()).then(setClientes);
+    fetch('/api/fornecedores/').then(res => res.json()).then(setFornecedores);
+    fetch('/api/propriedades/').then(res => res.json()).then(setPropriedades);
+    fetch('/api/plano-de-contas/').then(res => res.json()).then(setPlanos);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,12 +55,7 @@ function ContaForm({ conta, onSave, tipoConta }) {
   return (
     <form onSubmit={handleSubmit}>
       <label>Descrição</label>
-      <select name="descricao" value={form.descricao} onChange={handleChange} required>
-        <option value="">Selecione</option>
-        <option value="Compra de sementes">Compra de sementes</option>
-        <option value="Venda de soja">Venda de soja</option>
-        <option value="Adubo">Adubo</option>
-      </select>
+      <input type="text" name="descricao" value={form.descricao} onChange={handleChange} required />
 
       <label>Valor da parcela</label>
       <input type="number" name="valorParcela" value={form.valorParcela} onChange={handleChange} required />
@@ -84,18 +91,19 @@ function ContaForm({ conta, onSave, tipoConta }) {
       <label>Propriedade</label>
       <select name="propriedade" value={form.propriedade} onChange={handleChange}>
         <option value="">Selecione</option>
-        <option value="Fazenda Verde">Fazenda Verde</option>
-        <option value="Sítio Bom Jesus">Sítio Bom Jesus</option>
+        {propriedades.map(p => (
+          <option key={p.idpropriedade} value={p.descricao}>{p.descricao}</option>
+        ))}
       </select>
 
-      {/* Alterna entre Cliente ou Fornecedor */}
       {tipoConta === 'receber' ? (
         <>
           <label>Cliente</label>
           <select name="cliente" value={form.cliente} onChange={handleChange}>
             <option value="">Selecione</option>
-            <option value="Cliente A">Cliente A</option>
-            <option value="Cliente B">Cliente B</option>
+            {clientes.map(c => (
+              <option key={c.idcliente} value={c.nome}>{c.nome}</option>
+            ))}
           </select>
         </>
       ) : (
@@ -103,8 +111,9 @@ function ContaForm({ conta, onSave, tipoConta }) {
           <label>Fornecedor</label>
           <select name="fornecedor" value={form.fornecedor} onChange={handleChange}>
             <option value="">Selecione</option>
-            <option value="Fornecedor A">Fornecedor A</option>
-            <option value="Fornecedor B">Fornecedor B</option>
+            {fornecedores.map(f => (
+              <option key={f.idfornecedor} value={f.nome}>{f.nome}</option>
+            ))}
           </select>
         </>
       )}
@@ -112,8 +121,9 @@ function ContaForm({ conta, onSave, tipoConta }) {
       <label>Plano de contas</label>
       <select name="planoContas" value={form.planoContas} onChange={handleChange}>
         <option value="">Selecione</option>
-        <option value="Sementes para plantio">Sementes para plantio</option>
-        <option value="Insumos gerais">Insumos gerais</option>
+        {planos.map(pc => (
+          <option key={pc.idplanocontas} value={pc.descricao}>{pc.descricao}</option>
+        ))}
       </select>
 
       <button type="submit" className="salvar-btn">

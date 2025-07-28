@@ -1,55 +1,69 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import ContaForm from '../components/ContaForm';
 import { toast } from 'react-toastify';
 import './ContasPage.css';
 
 function ContasReceberPage() {
-  const [contas, setContas] = useState([
-    {
-      id: 1,
-      descricao: 'Venda de milho',
-      valorParcela: 1500,
-      parcelas: 2,
-      total: 3000,
-      vencimento: '2025-05-10',
-      quitacao: '',
-      status: 'Ativa',
-      juros: 0,
-      desconto: 0,
-      cliente: 'Agrocomercial Ltda',
-      propriedade: 'Fazenda Boa Vista',
-      planoContas: 'Receitas agrícolas'
-    }
-  ]);
-
+  const [contas, setContas] = useState([]);
   const [mostrarForm, setMostrarForm] = useState(false);
   const [contaSelecionada, setContaSelecionada] = useState(null);
 
-  // Salva nova ou edita existente
+  // Carrega contas do backend
+  useEffect(() => {
+    fetch('/api/contas-receber/')
+      .then(res => res.json())
+      .then(data => setContas(data))
+      .catch(err => {
+        console.error('Erro ao carregar contas:', err);
+        toast.error('Erro ao carregar contas');
+      });
+  }, []);
+
   const handleSalvarConta = (nova) => {
     if (nova.id) {
-      setContas((prev) =>
-        prev.map((c) => (c.id === nova.id ? nova : c))
-      );
-      toast.success('Conta atualizada!');
+      // Atualiza no backend
+      fetch(`/api/contas-receber/${nova.id}/`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nova),
+      })
+        .then(res => res.json())
+        .then(data => {
+          setContas((prev) => prev.map((c) => (c.id === data.id ? data : c)));
+          toast.success('Conta atualizada!');
+        })
+        .catch(() => toast.error('Erro ao atualizar conta'));
     } else {
-      const novoId = Math.max(...contas.map(c => c.id)) + 1;
-      setContas([...contas, { ...nova, id: novoId, status: 'Ativa' }]);
-      toast.success('Conta criada!');
+      // Cria nova no backend
+      fetch('/api/contas-receber/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...nova, status: 'Ativa' }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          setContas(prev => [...prev, data]);
+          toast.success('Conta criada!');
+        })
+        .catch(() => toast.error('Erro ao criar conta'));
     }
-
-    //  BACKEND: POST /api/contas/receber ou PUT /api/contas/receber/:id
   };
 
-  //  Simula inativação (exclusão lógica)
   const handleInativar = (id) => {
-    setContas((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status: 'Inativa' } : c))
-    );
-
-    //  BACKEND: PUT /api/contas/receber/:id/inativar
-    toast.success('Conta inativada!');
+    fetch(`/api/contas-receber/${id}/`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'Inativa' }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        setContas((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, status: 'Inativa' } : c))
+        );
+        toast.success('Conta inativada!');
+      })
+      .catch(() => toast.error('Erro ao inativar conta'));
   };
 
   return (
@@ -83,9 +97,9 @@ function ContasReceberPage() {
             {contas.map((conta) => (
               <tr key={conta.id}>
                 <td>{conta.descricao}</td>
-                <td>R$ {conta.valorParcela?.toFixed(2)}</td>
+                <td>R$ {parseFloat(conta.valor_parcela)?.toFixed(2)}</td>
                 <td>{conta.parcelas}</td>
-                <td>R$ {conta.total?.toFixed(2)}</td>
+                <td>R$ {parseFloat(conta.total)?.toFixed(2)}</td>
                 <td>{conta.vencimento}</td>
                 <td>{conta.quitacao}</td>
                 <td style={{ color: conta.status === 'Inativa' ? '#999' : '#333' }}>
