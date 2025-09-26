@@ -1,28 +1,22 @@
-.logo {
-  width: 200px;
-  height: auto;
-  display: block;
-  margin: 0 auto 20px;
-}
-
+/* ---- Base / container --------------------------------------------------- */
 .sidebar {
   width: 240px;
-  background: #f4f4f4;
   height: 100vh;
-  padding: 20px;
+  background: #f4f4f4;
+  padding: 16px 12px;            /* padding uniforme */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  position: relative;
+  gap: 2px;                      /* espaçamento suave entre blocos */
+  font-family: 'Nunito', Helvetica, Arial, sans-serif;
 }
 
-.sidebar h2 {
-  font-size: 18px;
-  margin: 20px 0 20px 8px; 
-  color: green;
-  font-weight: bold;
+.logo {
+  width: 220px;
+  height: auto;
+  display: block;
+  margin: 0 auto 10px;
 }
-
 
 .sidebar ul {
   list-style: none;
@@ -30,97 +24,162 @@
   margin: 0;
 }
 
-.sidebar li {
-  margin: 10px 0;
-  cursor: pointer;
-  color: #444;
+/* ---- Links e itens ------------------------------------------------------ */
+.sidebar a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.sidebar-link,
+.menu-item,
+.submenu-link,
+.menu-toggle {                   /* <-- padroniza tamanho dos toggles com os links */
   display: flex;
   align-items: center;
-  font-size: 16px;
-  transition: color 0.2s ease;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;            /* todos os itens com o MESMO padding */
+  border-radius: 8px;
+  color: #374151;                /* cinza 700 */
+  transition: background .15s ease, color .15s ease;
+  font-size: 18px;               /* <-- tamanho unificado */
+  line-height: 1.25;             /* mesma altura visual */
 }
 
-.sidebar li:hover {
-  color: green;
-}
-
-.sidebar .active {
-  font-weight: bold;
-  color: green;
-}
-
-/* Menu principal (ex: Cadastros) */
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: normal;
-  cursor: pointer;
-  font-size: 16px;
-  margin: 10px 0;
-  color: #444;
-  padding-left: 2px;
-  transition: color 0.2s ease;
-}
-
-.menu-item:hover {
-  color: green;
-}
-
-.menu-item .icon {
+.sidebar-link .icon,
+.menu-item .icon,
+.submenu-link .icon,
+.menu-toggle .icon {             /* coluna fixa para todos os ícones */
+  flex: 0 0 18px;
   font-size: 18px;
-  margin-right: 4px;
 }
 
-/* Submenu visual (ajuste recuo e estilo lateral) */
+.sidebar-link:hover,
+.menu-item:hover,
+.submenu-link:hover,
+.menu-toggle:hover {
+  background: #e8f3ec;           /* leve realce no hover */
+  color: #166534;                /* verde mais escuro */
+}
+
+/* Estado ativo (mesmo visual p/ links do menu e submenu) */
+.sidebar-link.active,
+.submenu-link.active {
+  background: #eaf5ee;
+  color: #166534;
+  font-weight: 700;
+  border-left: 4px solid #6ba877;    /* faixinha à esquerda */
+  padding-left: 8px;                  /* compensa a borda p/ manter alinhado */
+}
+
+/* ---- Cabeçalhos/“toggles” de grupo (Cadastros / Contas) ----------------- */
+.menu-item {
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+}
+
+/* Botão de toggle com caret (Cadastros) — usa a MESMA grade dos links */
+.menu-toggle {
+  justify-content: space-between;     /* texto à esquerda / caret à direita */
+  border: 0;
+  background: transparent;
+}
+
+.menu-toggle .menu-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;                           /* ícone + rótulo */
+}
+
+.menu-toggle .menu-left span {         /* garante texto do toggle com mesmo tamanho */
+  font-size: inherit;
+}
+
+/* ---- Submenu ------------------------------------------------------------ */
+/* ==== Submenu – versão mais compacta ==== */
 .submenu {
-  list-style: none;
-  padding-left: 24px;
-  margin: 5px 0 10px 0;
-  border-left: 2px solid rgba(0, 128, 0, 0.1); 
+  margin: 2px 0 4px 0;
+  padding-left: 10px;                 /* recuo um pouco menor */
+  border-left: 1.5px solid rgba(16, 185, 129, 0.15);
 }
 
 .submenu li {
-  margin: 8px 0;
-  display: flex;
-  align-items: center;
-  font-size: 15px;
-  color: #777;
-  transition: color 0.2s ease;
-  padding-left: 16px;
+  margin: 1px 0;                      /* menos espaço entre linhas */
 }
 
-.submenu li:hover {
-  color: green;
+.submenu .submenu-link {
+  padding: 8px 10px;                  /* menor que os itens principais (10x12) */
+  font-size: 15px;                    /* -1px */
+  line-height: 1.25;
+  border-radius: 6px;
 }
 
-.submenu-link {
-  text-decoration: none;
-  color: inherit;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.submenu .submenu-link .icon {
+  flex: 0 0 16px;                     /* ícone levemente menor */
+  font-size: 16px;
 }
 
-.submenu-link .icon {
-  font-size: 14px;
-  margin-right: 6px;
+/* estado ativo do submenu um pouco mais sutil */
+.submenu .submenu-link.active {
+  border-left-width: 3px;             /* mais fino que o principal (4px) */
+  padding-left: 7px;                   /* compensa a borda */
 }
 
-.submenu-link.active {
-  font-weight: bold;
-  color: green;
+
+/* ---- Tipografia extra --------------------------------------------------- */
+.sidebar h2 {
+  font-size: 18px;
+  margin: 12px 12px 6px;
+  color: #166534;
+  font-weight: 800;
 }
 
-.sidebar-link {
-  color: inherit;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
+/* ---- Rodapé do usuário -------------------------------------------------- */
 .user-footer {
-  position: absolute;
-  bottom: 20px;
+  margin-top: auto;                     /* cola no final sem usar position */
+  padding-top: 16px;
+  border-top: 1px dashed #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.user-footer strong {
+  display: block;
+  color: #111827;
+}
+
+.user-footer small {
+  color: #6b7280;
+}
+
+/* ---- Ajustes finos ------------------------------------------------------ */
+.sidebar li {                           /* garante que <li> container não adicione margem extra */
+  margin: 0;
+}
+
+.menu-header { margin: 6px 0; }
+
+.menu-split {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.caret-btn {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 10px 12px;                   /* mesma “hit-area” dos links */
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+}
+
+.caret-btn:hover {
+  background: #e8f3ec;
+  color: #166534;
 }

@@ -1,3 +1,4 @@
+// src/components/ClienteList.jsx
 import React, { useState, useEffect } from 'react';
 import { getClients, getClient } from '../services/clienteService';
 import ClienteDetails from './ClienteDetails';
@@ -16,27 +17,38 @@ function ClienteList() {
   const fetchClientes = async () => {
     try {
       const res = await getClients();
-      setClients(res.data);
+      // aceita axios (res.data) e retorno direto (res)
+      const list = Array.isArray(res?.data) ? res.data : res;
+      setClients(list || []);
     } catch (error) {
       console.error('Erro ao buscar clientes:', error);
     }
   };
 
-  const handleViewClient = async (idcliente) => {
-  try {
-    const res = await getClient(idcliente);
-    setSelectedClient(res.data);
-  } catch (err) {
-    console.error('Erro ao buscar cliente completo:', err);
-  }
-};
+  const handleViewClient = async (idOrClient) => {
+    try {
+      // aceita id OU o objeto inteiro
+      if (typeof idOrClient === 'object' && idOrClient !== null) {
+        setSelectedClient(idOrClient);
+        return;
+      }
+      const id = idOrClient;
+      if (!id) return;
+
+      const res = await getClient(id);
+      const client = res?.data ?? res;
+      setSelectedClient(client);
+    } catch (err) {
+      console.error('Erro ao buscar cliente completo:', err);
+    }
+  };
 
   return (
     <div style={{ display: 'flex', width: '100%' }}>
       <div className="supplier-list">
         <div className="list-header">
           <h3>Lista de clientes</h3>
-          <button className="add-button" onClick={() => setShowForm(true)}>
+          <button className="add-button" onClick={() => setShowForm(true)} type="button">
             + Adicionar
           </button>
         </div>
@@ -51,16 +63,29 @@ function ClienteList() {
             </tr>
           </thead>
           <tbody>
-            {clients.map((c, index) => (
-              <tr key={c.idcliente || index}>
-                <td>{c.nome}</td>
-                <td>{c.email}</td>
-                <td>{c.cpf_cnpj}</td>
-                <td>
-                  <button onClick={() => handleViewClient(c.idcliente)}>Ver</button>
-                </td>
-              </tr>
-            ))}
+            {clients.map((c, index) => {
+              // 🔽 fallbacks para conviver com mock e backend
+              const id = c.id ?? c.idcliente ?? index;
+              const nome = c.nome ?? c.nome_completo ?? '';
+              const cpfCnpj = c.cpf_cnpj ?? c.cpf ?? c.cnpj ?? '';
+
+              return (
+                <tr key={id}>
+                  <td>{nome}</td>
+                  <td>{c.email}</td>
+                  <td>{cpfCnpj}</td>
+                  <td>
+                    <button
+                      type="button"               // evita submit de forms
+                      onClick={() => handleViewClient(c.id ?? c.idcliente ?? c)}
+                      className="chip"
+                    >
+                      Ver
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -78,12 +103,12 @@ function ClienteList() {
 
       {showForm && (
         <div className="form-sidebar">
-          <button className="close-button" onClick={() => setShowForm(false)}>×</button>
+          <button className="close-button" onClick={() => setShowForm(false)} type="button">×</button>
           <h3>Cadastrar cliente</h3>
           <ClienteForm
             onSaveSuccess={() => {
               setShowForm(false);
-              fetchClientes();
+              fetchClientes(); // recarrega a lista após salvar
             }}
           />
         </div>

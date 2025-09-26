@@ -1,3 +1,4 @@
+// src/components/PropertyList.jsx
 import React, { useState, useEffect } from 'react';
 import './PropertyList.css';
 import PropertyDetails from './PropertyDetails';
@@ -16,27 +17,38 @@ function PropertyList() {
   const fetchProperties = async () => {
     try {
       const res = await getProperties();
-      setProperties(res.data);
+      // aceita axios (res.data) e retorno direto (res)
+      const list = Array.isArray(res?.data) ? res.data : res;
+      setProperties(list || []);
     } catch (error) {
       console.error('Erro ao buscar propriedades:', error);
     }
   };
 
-  const handleViewProperty = async (idpropriedade) => {
-  try {
-    const res = await getProperty(idpropriedade);
-    setSelectedProperty(res.data);
-  } catch (err) {
-    console.error('Erro ao buscar propriedade completa:', err);
-  }
-};
+  // aceita id OU o objeto completo
+  const handleViewProperty = async (idOrObj) => {
+    try {
+      if (typeof idOrObj === 'object' && idOrObj !== null) {
+        setSelectedProperty(idOrObj);
+        return;
+      }
+      const id = idOrObj;
+      if (!id) return;
+
+      const res = await getProperty(id);
+      const prop = res?.data ?? res;
+      setSelectedProperty(prop);
+    } catch (err) {
+      console.error('Erro ao buscar propriedade completa:', err);
+    }
+  };
 
   return (
     <div style={{ display: 'flex', width: '100%' }}>
       <div className="property-list">
         <div className="list-header">
           <h3>Lista de propriedades</h3>
-          <button className="add-button" onClick={() => setShowForm(true)}>
+          <button className="add-button" onClick={() => setShowForm(true)} type="button">
             + Adicionar
           </button>
         </div>
@@ -50,25 +62,38 @@ function PropertyList() {
             </tr>
           </thead>
           <tbody>
-            {properties.map((p, index) => (
-              <tr key={index}>
-                <td>{p.descricao}</td>
-                <td>{p.cidade}</td>
-                <td>
-                  <button onClick={() => handleViewProperty(p.idpropriedade)}>Ver</button>
-                </td>
-              </tr>
-            ))}
+            {properties.map((p, index) => {
+              // 🔽 fallbacks para conviver com mock e backend
+              const id = p.id ?? p.idpropriedade ?? index;
+              const nome = p.nome ?? p.descricao ?? '';
+              const cidade = p.cidade ?? '';
+
+              return (
+                <tr key={id}>
+                  <td>{nome}</td>
+                  <td>{cidade}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="chip"
+                      onClick={() => handleViewProperty(p.id ?? p.idpropriedade ?? p)}
+                    >
+                      Ver
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       {selectedProperty && (
         <PropertyDetails
-          property={selectedProperty}
+          property={selectedProperty}          // tem .nome, .cidade, .endereco, etc.
           onClose={() => setSelectedProperty(null)}
-          onEdit={(p) => {
-            const query = new URLSearchParams({ ...p, edit: 'true' }).toString();
+          onEdit={(prop) => {
+            const query = new URLSearchParams({ ...prop, edit: 'true' }).toString();
             window.location.href = `/propriedades/cadastrar?${query}`;
           }}
         />
@@ -76,7 +101,7 @@ function PropertyList() {
 
       {showForm && (
         <div className="form-sidebar">
-          <button className="close-button" onClick={() => setShowForm(false)}>×</button>
+          <button className="close-button" onClick={() => setShowForm(false)} type="button">×</button>
           <h3>Cadastrar propriedade</h3>
           <PropertyForm
             onSaveSuccess={() => {
@@ -91,3 +116,4 @@ function PropertyList() {
 }
 
 export default PropertyList;
+

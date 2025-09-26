@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import logo from '../assets/Logo.png';
 import {
@@ -8,16 +8,38 @@ import {
   FiLogOut
 } from 'react-icons/fi';
 import './Sidebar.css';
+import { IS_DEMO } from '../services/demoFlags';
 
-// Função para gerar avatar automático
+/* ----------------------------- utils ----------------------------------- */
+const clean = (v, fallback = '') => {
+  if (v === undefined || v === null) return fallback;
+  const s = String(v).trim();
+  if (!s || s.toLowerCase() === 'undefined' || s.toLowerCase() === 'null') return fallback;
+  return s;
+};
+
+const getBoth = (k) =>
+  clean(localStorage.getItem(k)) || clean(sessionStorage.getItem(k));
+
+const getUserObj = () => {
+  try {
+    const raw = localStorage.getItem('user') || sessionStorage.getItem('user');
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+};
+
+// Avatar com iniciais
 function stringAvatar(name) {
-  const initials = name
+  const initials = clean(name, 'U')
     .split(' ')
+    .filter(Boolean)
     .map(n => n[0])
     .join('')
     .toUpperCase();
   return {
-    children: initials,
+    children: initials || 'U',
     sx: {
       bgcolor: '#f8d7da',
       color: '#721c24',
@@ -29,79 +51,120 @@ function stringAvatar(name) {
     }
   };
 }
+/* ----------------------------------------------------------------------- */
 
 function Sidebar() {
   const location = useLocation();
-  const navigate = useNavigate();
   const [cadastrosOpen, setCadastrosOpen] = useState(true);
   const [contasOpen, setContasOpen] = useState(true);
 
-  const tipoUsuario = localStorage.getItem('tipousuario');
-  const nomeUsuario = localStorage.getItem('nome') || 'Usuario';
+  const userObj = getUserObj();
 
-  // Checando no console se os dados foram gravados corretamente
-  console.log('Login efetuado, dados armazenados:', {
-    userId: localStorage.getItem('id'),
-    username: localStorage.getItem('username'),
-    tipoUsuario: localStorage.getItem('tipousuario'),
-  });
+  // nome com fallback; em DEMO força admin_dev
+  const nomeUsuario = IS_DEMO
+    ? 'admin_dev'
+    : clean(userObj?.nome) ||
+      getBoth('nome') ||
+      clean(userObj?.username) ||
+      getBoth('username') ||
+      'Usuario';
+
+  // tipo de usuário; em DEMO força '1'
+  const tipoStorage = IS_DEMO
+    ? '1'
+    : clean(userObj?.tipoUsuario) ||
+      getBoth('tipoUsuario') ||
+      getBoth('tipousuario') ||
+      '';
+
+  const isAdmin =
+    IS_DEMO ||
+    tipoStorage.toLowerCase() === '1' ||
+    tipoStorage.toLowerCase() === 'admin';
 
   const handleLogout = () => {
     localStorage.clear();
+    sessionStorage.clear();
     window.location.href = '/login';
   };
 
-  const handleContasClick = () => {
-    setContasOpen(!contasOpen);
-    navigate('/contas');
-  };
+  const isActive = (path) => location.pathname === path;
 
   return (
     <div className="sidebar">
-      <img src={logo} alt="Logo SAAS AGRO LIGHT" className="logo" />
+      <img src={logo} alt="Logo SIGAS" className="logo" />
 
       <ul>
         {/* Dashboard */}
         <li>
-          <Link to="/dashboard" className={location.pathname === '/dashboard' ? 'active sidebar-link' : 'sidebar-link'}>
+          <Link
+            to="/dashboard"
+            className={isActive('/dashboard') ? 'active sidebar-link' : 'sidebar-link'}
+          >
             <FiGrid className="icon" />
             Dashboard
           </Link>
         </li>
 
-        {/* Cadastros */}
-        <li className="menu-item" onClick={() => setCadastrosOpen(!cadastrosOpen)}>
-          <FiUsers className="icon" />
-          Cadastros {cadastrosOpen ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
+        {/* Cadastros (toggle alinhado à grade dos itens) */}
+        <li className="menu-header">
+          <button
+            type="button"
+            className="menu-toggle"
+            onClick={() => setCadastrosOpen(!cadastrosOpen)}
+            aria-expanded={cadastrosOpen}
+            aria-controls="submenu-cadastros"
+          >
+            <span className="menu-left">
+              <FiUsers className="icon" />
+              <span>Cadastros</span>
+            </span>
+            {cadastrosOpen ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
+          </button>
         </li>
 
         {cadastrosOpen && (
-          <ul className="submenu">
-            {tipoUsuario === '1' && (
+          <ul className="submenu" id="submenu-cadastros">
+            {isAdmin && (
               <li>
-                <Link to="/usuarios" className={location.pathname === '/usuarios' ? 'active submenu-link' : 'submenu-link'}>
+                <Link
+                  to="/usuarios"
+                  className={isActive('/usuarios') ? 'active submenu-link' : 'submenu-link'}
+                >
                   <FiUser className="icon" /> Usuários
                 </Link>
               </li>
             )}
             <li>
-              <Link to="/clientes" className={location.pathname === '/clientes' ? 'active submenu-link' : 'submenu-link'}>
+              <Link
+                to="/clientes"
+                className={isActive('/clientes') ? 'active submenu-link' : 'submenu-link'}
+              >
                 <FiUserCheck className="icon" /> Clientes
               </Link>
             </li>
             <li>
-              <Link to="/fornecedores" className={location.pathname === '/fornecedores' ? 'active submenu-link' : 'submenu-link'}>
+              <Link
+                to="/fornecedores"
+                className={isActive('/fornecedores') ? 'active submenu-link' : 'submenu-link'}
+              >
                 <FiTruck className="icon" /> Fornecedores
               </Link>
             </li>
             <li>
-              <Link to="/propriedades" className={location.pathname === '/propriedades' ? 'active submenu-link' : 'submenu-link'}>
+              <Link
+                to="/propriedades"
+                className={isActive('/propriedades') ? 'active submenu-link' : 'submenu-link'}
+              >
                 <FiHome className="icon" /> Propriedades
               </Link>
             </li>
-            {tipoUsuario === '1' && (
+            {isAdmin && (
               <li>
-                <Link to="/plano-contas" className={location.pathname === '/plano-contas' ? 'active submenu-link' : 'submenu-link'}>
+                <Link
+                  to="/plano-contas"
+                  className={isActive('/plano-contas') ? 'active submenu-link' : 'submenu-link'}
+                >
                   <FiDollarSign className="icon" /> Plano de Contas
                 </Link>
               </li>
@@ -109,21 +172,45 @@ function Sidebar() {
           </ul>
         )}
 
-        {/* Contas */}
-        <li className="menu-item" onClick={handleContasClick}>
-          <FiDollarSign className="icon" />
-          Contas {contasOpen ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
+        {/* Contas – link principal + caret para abrir submenu */}
+        <li className="menu-header">
+          <div className="menu-split">
+            <Link
+              to="/contas"
+              className={isActive('/contas') ? 'active sidebar-link' : 'sidebar-link'}
+            >
+              <FiDollarSign className="icon" />
+              <span>Contas</span>
+            </Link>
+
+            <button
+              type="button"
+              aria-label={contasOpen ? 'Recolher' : 'Expandir'}
+              className={`caret-btn ${contasOpen ? 'open' : ''}`}
+              onClick={() => setContasOpen(v => !v)}
+              aria-expanded={contasOpen}
+              aria-controls="submenu-contas"
+            >
+              {contasOpen ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
+            </button>
+          </div>
         </li>
 
         {contasOpen && (
-          <ul className="submenu">
+          <ul className="submenu" id="submenu-contas">
             <li>
-              <Link to="/contas/pagar" className={location.pathname === '/contas/pagar' ? 'active submenu-link' : 'submenu-link'}>
+              <Link
+                to="/contas/pagar"
+                className={isActive('/contas/pagar') ? 'active submenu-link' : 'submenu-link'}
+              >
                 <FiClipboard className="icon" /> A pagar
               </Link>
             </li>
             <li>
-              <Link to="/contas/receber" className={location.pathname === '/contas/receber' ? 'active submenu-link' : 'submenu-link'}>
+              <Link
+                to="/contas/receber"
+                className={isActive('/contas/receber') ? 'active submenu-link' : 'submenu-link'}
+              >
                 <FiFileText className="icon" /> A receber
               </Link>
             </li>
@@ -132,7 +219,10 @@ function Sidebar() {
 
         {/* Notificações */}
         <li>
-          <Link to="/notificacoes" className={location.pathname === '/notificacoes' ? 'active sidebar-link' : 'sidebar-link'}>
+          <Link
+            to="/notificacoes"
+            className={isActive('/notificacoes') ? 'active sidebar-link' : 'sidebar-link'}
+          >
             <FiBell className="icon" />
             Notificações
           </Link>
@@ -140,51 +230,41 @@ function Sidebar() {
 
         {/* Calendário */}
         <li>
-          <Link to="/calendario" className={location.pathname === '/calendario' ? 'active sidebar-link' : 'sidebar-link'}>
+          <Link
+            to="/calendario"
+            className={isActive('/calendario') ? 'active sidebar-link' : 'sidebar-link'}
+          >
             <FiCalendar className="icon" />
             Calendário
           </Link>
         </li>
 
-        {/* Itens específicos por tipo de usuário */}
-        {tipoUsuario === '1' && (
-          <li>
-            <Link to="/admin" className={location.pathname === '/admin' ? 'active sidebar-link' : 'sidebar-link'}>
-              <FiSettings className="icon" />
-              Administração
-            </Link>
-          </li>
-        )}
-        {tipoUsuario === '2' && (
-          <li>
-            <Link to="/perfil" className={location.pathname === '/perfil' ? 'active sidebar-link' : 'sidebar-link'}>
-              <FiUser className="icon" />
-              Meu Perfil
-            </Link>
-          </li>
-        )}
-
         {/* Configurações */}
         <li>
-          <Link to="/configuracoes" className={location.pathname === '/configuracoes' ? 'active sidebar-link' : 'sidebar-link'}>
+          <Link
+            to="/configuracoes"
+            className={isActive('/configuracoes') ? 'active sidebar-link' : 'sidebar-link'}
+          >
             <FiSettings className="icon" />
             Configurações
           </Link>
         </li>
       </ul>
 
-      {/* Rodapé com avatar e botão de logout */}
-      <div className="user-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: 20 }}>
+      {/* Rodapé */}
+      <div className="user-footer">
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <Avatar {...stringAvatar(nomeUsuario)} />
           <div style={{ lineHeight: '1.2' }}>
             <strong style={{ fontSize: 14 }}>{nomeUsuario}</strong>
-            <div style={{ fontSize: 12, color: '#888' }}>
-              {tipoUsuario === '1' ? 'Admin' : 'Usuário comum'}
-            </div>
+            <small>{isAdmin ? 'Admin' : 'Usuário comum'}</small>
           </div>
         </div>
-        <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+        <button
+          onClick={handleLogout}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+          aria-label="Sair"
+        >
           <FiLogOut size={18} color="#888" />
         </button>
       </div>
