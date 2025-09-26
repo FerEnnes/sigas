@@ -6,26 +6,28 @@ import GraficoAnaliseResumo from '../components/GraficoAnaliseResumo';
 import './ContasResumoPage.css';
 import { listContas } from '../services/contasServiceMock';
 
+// ---- helper de moeda (garante "R$" sempre) -------------------------------
+const fmtBRL = (v) =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
+    .format(Number(v || 0));
+
 function ContasResumoPage() {
   const [abaAtiva, setAbaAtiva] = useState('pagar'); // 'pagar' | 'receber'
   const [items, setItems] = useState([]);
 
-  // total vendido é estático só pra vitrine (pode trocar por alguma conta real depois)
+  // total vendido apenas para vitrine
   const totalVendido = 500008.74;
 
-  // deixa a função estável e só dependente de abaAtiva
+  // memoiza a função para não quebrar a regra de deps do useEffect
   const carregar = useCallback(() => {
-    const data = listContas(abaAtiva); // lê do localStorage
+    const data = listContas(abaAtiva);
     setItems(data);
   }, [abaAtiva]);
 
   useEffect(() => {
     carregar();
-
-    // atualiza se algo do localStorage mudar (ex.: cadastrou novo item)
-    const handler = () => carregar();
-    window.addEventListener('storage', handler);
-    return () => window.removeEventListener('storage', handler);
+    window.addEventListener('storage', carregar);
+    return () => window.removeEventListener('storage', carregar);
   }, [carregar]);
 
   const totalAba = useMemo(
@@ -58,11 +60,11 @@ function ContasResumoPage() {
         <div className="cards-resumo">
           <div className="card">
             <p>Total vendido</p>
-            <h3>R$ {totalVendido.toLocaleString('pt-BR')}</h3>
+            <h3>{fmtBRL(totalVendido)}</h3>
           </div>
           <div className="card">
             <p>Total {abaAtiva === 'pagar' ? 'a pagar' : 'a receber'}</p>
-            <h3>R$ {totalAba.toLocaleString('pt-BR')}</h3>
+            <h3>{fmtBRL(totalAba)}</h3>
           </div>
         </div>
 
@@ -95,31 +97,20 @@ function ContasResumoPage() {
                 <tr key={row.id || idx}>
                   <td>{idx + 1}</td>
                   <td>{row.descricao}</td>
-                  <td>
-                    R{' '}
-                    {Number(row.valorParcela || 0).toLocaleString('pt-BR', {
-                      minimumFractionDigits: 2
-                    })}
-                  </td>
+                  <td>{fmtBRL(row.valorParcela)}</td>
                   <td>{row.parcelas}</td>
-                  <td style={{ color: 'green' }}>
-                    R{' '}
-                    {Number(row.total || 0).toLocaleString('pt-BR', {
-                      minimumFractionDigits: 2
-                    })}
-                  </td>
+                  <td style={{ color: 'green' }}>{fmtBRL(row.total)}</td>
                 </tr>
               ))}
               {(!items || items.length === 0) && (
                 <tr>
-                  <td colSpan={5} style={{ color: '#6b7280' }}>
-                    Nenhum registro.
-                  </td>
+                  <td colSpan={5} style={{ color: '#6b7280' }}>Nenhum registro.</td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
+
       </div>
     </div>
   );
