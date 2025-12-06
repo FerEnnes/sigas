@@ -10,10 +10,10 @@ function UsuarioFormPage() {
   return (
     <div className="app" style={{ display: 'flex', height: '100vh' }}>
       <Helmet>
-        <title>{isEdit ? 'Editar Usuário' : 'Cadastrar Usuário'} | SaaS Agro</title>
+        <title>{isEdit ? 'Editar Usuário' : 'Cadastrar Usuário'} | SIGAS</title>
         <meta
           name="description"
-          content="Gerencie usuários do sistema SaaS Agro: adicione ou edite dados de acesso e perfil."
+          content="Gerencie usuários do sistema SIGAS: adicione ou edite dados de acesso e perfil."
         />
       </Helmet>
 

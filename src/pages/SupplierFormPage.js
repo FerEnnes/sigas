@@ -7,7 +7,7 @@ function SupplierFormPage() {
   return (
     <div className="app" style={{ display: 'flex', height: '100vh' }}>
       <Helmet>
-        <title>Editar ou Cadastrar Fornecedor | SaaS Agro</title>
+        <title>Editar ou Cadastrar Fornecedor | SIGAS</title>
         <meta
           name="description"
           content="Adicione ou edite informações dos fornecedores da sua plataforma agrícola."

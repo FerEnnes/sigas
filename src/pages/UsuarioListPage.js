@@ -22,10 +22,10 @@ function UsuarioListPage() {
   return (
     <div className="app">
       <Helmet>
-        <title>Usuários | SaaS Agro</title>
+        <title>Usuários | SIGAS</title>
         <meta
           name="description"
-          content="Gerencie os usuários da plataforma SaaS Agro: cadastre, edite ou visualize informações."
+          content="Gerencie os usuários da plataforma SIGAS: cadastre, edite ou visualize informações."
         />
       </Helmet>
 

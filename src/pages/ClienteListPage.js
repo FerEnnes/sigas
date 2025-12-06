@@ -7,8 +7,8 @@ function ClienteListPage() {
   return (
     <div className="app" style={{ display: 'flex', height: '100vh' }}>
       <Helmet>
-        <title>Clientes | SaaS Agro</title>
-        <meta name="description" content="Gerencie seus clientes no SaaS Agro Light." />
+        <title>Clientes | SIGAS</title>
+        <meta name="description" content="Gerencie seus clientes no SIGAS." />
       </Helmet>
 
       <Sidebar />

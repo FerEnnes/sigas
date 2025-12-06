@@ -10,7 +10,7 @@ function ClienteFormPage() {
   return (
     <div className="app" style={{ display: 'flex', height: '100vh' }}>
       <Helmet>
-        <title>{isEdit ? 'Editar Cliente' : 'Cadastrar Cliente'} | SaaS Agro</title>
+        <title>{isEdit ? 'Editar Cliente' : 'Cadastrar Cliente'} | SIGAS</title>
         <meta name="description" content="Adicione ou edite informações de clientes." />
       </Helmet>
 

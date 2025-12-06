@@ -7,7 +7,7 @@ function SupplierListPage() {
   return (
     <div className="app">
       <Helmet>
-        <title>Fornecedores | SaaS Agro</title>
+        <title>Fornecedores | SIGAS</title>
         <meta name="description" content="Visualize, adicione e gerencie a lista de fornecedores cadastrados no sistema." />
       </Helmet>
 

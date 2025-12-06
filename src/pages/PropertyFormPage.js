@@ -12,8 +12,8 @@ function PropertyFormPage() {
   return (
     <div className="app" style={{ display: 'flex', height: '100vh' }}>
       <Helmet>
-        <title>Editar Propriedade | SaaS Agro</title>
-        <meta name="description" content="Atualize os dados da propriedade cadastrada no sistema SaaS Agro." />
+        <title>Editar Propriedade | SIGAS</title>
+        <meta name="description" content="Atualize os dados da propriedade cadastrada no sistema SIGAS." />
       </Helmet>
 
       <Sidebar />

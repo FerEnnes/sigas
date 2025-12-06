@@ -1,4 +1,3 @@
-// src/components/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
@@ -9,7 +8,6 @@ export function AuthProvider({ children }) {
   );
 
   useEffect(() => {
-    // Aqui você poderia validar se o token ainda é válido (se usar JWT, por exemplo)
   }, []);
 
   const login = (newToken, persist = false) => {

@@ -78,7 +78,9 @@ A estrutura atual do projeto segue, em linhas gerais, o padrão:
 ├─ package.json
 ├─ package-lock.json
 └─ README.md               # Este arquivo
-Pré-requisitos
+------
+```
+## Pré-requisitos
 Antes de iniciar, é recomendado ter instalado:
 
 Git
@@ -89,7 +91,7 @@ Node.js 16+ (inclui npm)
 
 (Opcional) Virtualenv ou similar para isolar dependências Python
 
-Como executar o projeto
+## Como executar o projeto
 1. Clonando o repositório
 bash
 Copiar código
@@ -171,7 +173,8 @@ EMAIL_USE_TLS=True
 EMAIL_HOST_USER=seu-email@gmail.com
 EMAIL_HOST_PASSWORD=sua_senha_ou_app_password
 DEFAULT_FROM_EMAIL=SIGAS <seu-email@gmail.com>
-Frontend
+
+## Frontend
 Caso o frontend consuma a API via variável de ambiente (exemplo com React padrão):
 
 env
@@ -179,7 +182,7 @@ Copiar código
 REACT_APP_API_BASE_URL=http://127.0.0.1:8000/api
 Ajuste o prefixo conforme o bundler usado (por exemplo, VITE_ se estiver usando Vite).
 
-Testes
+## Testes
 Os testes automatizados podem ser executados com:
 
 bash
@@ -190,7 +193,8 @@ python manage.py test
 
 # Frontend (a partir da raiz, se configurado)
 npm test
-Contexto acadêmico
+
+## Contexto acadêmico
 Este projeto foi desenvolvido em contexto acadêmico, com foco em:
 
 Organização e modelagem de dados relacionados à agricultura sintrópica.
@@ -201,9 +205,6 @@ Integração de um módulo inteligente (GerminAi) para apoio ao planejamento de 
 
 O SIGAS pode ser evoluído para incluir novos módulos (por exemplo, análise de produtividade, integração com dados climáticos e geográficos, entre outros).
 
-Licença
-Defina aqui a licença do projeto (por exemplo, MIT, GPL, uso acadêmico, etc.). Exemplo:
-
-text
-Copiar código
+## Licença
+Licenciado sob a Licença MIT.
 Este projeto é de uso acadêmico. A reutilização parcial ou total do código deve citar a autora e a instituição 

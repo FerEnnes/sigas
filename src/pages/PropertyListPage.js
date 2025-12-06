@@ -8,8 +8,8 @@ function PropertyListPage() {
   return (
     <div className="app">
       <Helmet>
-        <title>Propriedades | SaaS Agro</title>
-        <meta name="description" content="Gerencie todas as propriedades cadastradas no sistema SaaS Agro." />
+        <title>Propriedades | SIGAS</title>
+        <meta name="description" content="Gerencie todas as propriedades cadastradas no sistema SIGAS." />
       </Helmet>
 
       <Sidebar />
