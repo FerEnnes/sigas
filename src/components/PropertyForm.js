@@ -15,61 +15,65 @@ function PropertyForm({ onSaveSuccess }) {
     cidade: '',
     estado: '',
     cep: '',
-    complemento: ''
+    complemento: '',
   });
 
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (isEdit) {
-      const id = params.get('idpropriedade');
-      if (!id) return;
+    if (!isEdit) return;
 
-      const fetchPropriedade = async () => {
-        try {
-          const res = await getProperty(id);
-          const data = res.data;
+    const id = params.get('idpropriedade');
+    if (!id) return;
 
-          const formatCep = data.cep?.replace(/\D/g, '')
-            .replace(/^(\d{5})(\d)/, '$1-$2');
+    const fetchPropriedade = async () => {
+      try {
+        const res = await getProperty(id);
+        const data = res.data ?? res;
 
-          setForm({
-            name: data.descricao || '',
-            telefone: data.telefone || '',
-            rua: data.logradouro || '',
-            numero: data.numero || '',
-            bairro: data.bairro || '',
-            cidade: data.cidade || '',
-            estado: data.estado || '',
-            cep: formatCep || '',
-            complemento: data.complemento || ''
-          });
-        } catch (err) {
-          console.error('Erro ao buscar propriedade:', err);
-        }
-      };
+        const formatCep = data.cep
+          ? String(data.cep).replace(/\D/g, '').replace(/^(\d{5})(\d)/, '$1-$2')
+          : '';
 
-      fetchPropriedade();
-    }
+        setForm({
+          name: data.descricao || '',
+          telefone: data.telefone || '',
+          rua: data.logradouro || '',
+          numero: data.numero != null ? String(data.numero) : '',
+          bairro: data.bairro || '',
+          cidade: data.cidade || '',
+          estado: data.estado || '',
+          cep: formatCep,
+          complemento: data.complemento || '',
+        });
+      } catch (err) {
+        console.error('Erro ao buscar propriedade:', err);
+      }
+    };
+
+    fetchPropriedade();
   }, [isEdit, params]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     if (name === 'telefone') {
       const formatted = value
         .replace(/\D/g, '')
         .replace(/^(\d{2})(\d)/, '($1) $2')
         .replace(/(\d{5})(\d{1,4})/, '$1-$2')
         .substring(0, 15);
-      setForm({ ...form, telefone: formatted });
-    } else {
-      setForm({ ...form, [name]: value });
+      setForm((prev) => ({ ...prev, telefone: formatted }));
+      return;
     }
+
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleCepBlur = async () => {
     const cep = form.cep.replace(/\D/g, '');
     if (cep.length !== 8) return;
+
     try {
       const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
       const data = await res.json();
@@ -88,12 +92,21 @@ function PropertyForm({ onSaveSuccess }) {
 
   const validarCampos = () => {
     const obrigatorios = [
-      'name', 'telefone', 'rua', 'numero', 'bairro', 'cidade', 'estado', 'cep'
+      'name',
+      'telefone',
+      'rua',
+      'numero',
+      'bairro',
+      'cidade',
+      'estado',
+      'cep',
     ];
     const novosErros = {};
 
     obrigatorios.forEach((campo) => {
-      if (!form[campo]?.trim()) {
+      const valor = form[campo];
+      const texto = String(valor ?? '').trim();
+      if (!texto) {
         novosErros[campo] = 'Campo obrigatório';
       }
     });
@@ -112,15 +125,13 @@ function PropertyForm({ onSaveSuccess }) {
       descricao: form.name,
       telefone: form.telefone,
       logradouro: form.rua,
-      numero: form.numero,
+      numero: form.numero ? parseInt(form.numero, 10) : null,
       bairro: form.bairro,
       cidade: form.cidade,
       estado: form.estado,
       cep: cepSemTraco,
-      complemento: form.complemento
+      complemento: form.complemento,
     };
-
-    console.log('🔍 Enviando payload:', payload);
 
     try {
       if (isEdit) {
@@ -141,10 +152,9 @@ function PropertyForm({ onSaveSuccess }) {
         onSaveSuccess();
       }
     } catch (error) {
-      console.error('❌ Erro ao salvar propriedade:', error);
+      console.error('Erro ao salvar propriedade:', error);
 
       if (error.response) {
-        console.error('🛑 Erro do backend:', error.response.data);
         alert(`Erro ao salvar propriedade: ${JSON.stringify(error.response.data)}`);
       } else if (error.request) {
         alert('Erro de conexão com o servidor.');

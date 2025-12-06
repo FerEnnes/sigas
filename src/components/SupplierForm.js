@@ -41,7 +41,7 @@ function SupplierForm({ onSaveSuccess }) {
             cpf: data.cpf_cnpj || '',
             telefone: data.telefone || '',
             rua: data.logradouro || '',
-            numero: data.numero || '',
+            numero: form.numero ? parseInt(form.numero, 10) : null,
             complemento: data.complemento || '',
             bairro: data.bairro || '',
             cep: formatCep || '',

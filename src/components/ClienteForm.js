@@ -1,300 +1,295 @@
-import React, { useEffect, useState } from 'react';
-import api, { parseApiError } from '../services/api';
-import { toast } from 'react-toastify';
+import React, { useEffect, useState, useMemo } from 'react';
+import './SupplierForm.css';
+import {
+  createClient,
+  updateClient,
+  getClient,
+} from '../services/clienteService';
 
-const toMoney = (n) => {
-  const v = Number(n || 0);
-  return Number.isFinite(v) ? v.toFixed(2) : '0.00';
-};
+function ClienteForm({ onSaveSuccess }) {
+  const params = useMemo(() => new URLSearchParams(window.location.search), []);
+  const isEdit = useMemo(() => params.get('edit') === 'true', [params]);
 
-export default function ContaForm({ conta, onSave, tipoConta }) {
   const [form, setForm] = useState({
-    id: null,
-    descricao: '',
-    valorParcela: '',
-    parcelas: 1,
-    total: 0,
-    vencimento: '',
-    quitacao: '',
-    juros: 0,
-    desconto: 0,
-    propriedade: '',
-    fornecedor: '',
-    cliente: '',
-    planoContas: '',
+    name: '',
+    email: '',
+    cpf: '',
+    telefone: '',
+    rua: '',
+    numero: '',
+    bairro: '',
+    cidade: '',
+    estado: '',
+    cep: '',
+    complemento: '',
   });
 
-  const [clientes, setClientes] = useState([]);
-  const [fornecedores, setFornecedores] = useState([]);
-  const [propriedades, setPropriedades] = useState([]);
-  const [planos, setPlanos] = useState([]);
+  const [errors, setErrors] = useState({});
 
-  // Preenche o form quando for edição
+  // Carregar dados do cliente quando for edição
   useEffect(() => {
-    if (conta) {
-      setForm({
-        id: conta.idcontapagar ?? null,
-        descricao: conta.descricao ?? '',
-        valorParcela: conta.valorparcela ?? '',
-        parcelas: conta.numeroparcela ?? 1,
-        total: 0, // recalcula abaixo
-        vencimento: conta.datavencimento ?? '',
-        quitacao: conta.dataquitacao ?? '',
-        juros: conta.valorjuros ?? 0,
-        desconto: conta.valordesconto ?? 0,
-        // aqui guardo IDs
-        propriedade: conta.idpropriedade ?? '',
-        fornecedor: conta.idfornecedor ?? '',
-        cliente: '', // só vai ser usado em Contas a receber
-        planoContas: conta.idplanocontas ?? '',
-      });
-    } else {
-      setForm({
-        id: null,
-        descricao: '',
-        valorParcela: '',
-        parcelas: 1,
-        total: 0,
-        vencimento: '',
-        quitacao: '',
-        juros: 0,
-        desconto: 0,
-        propriedade: '',
-        fornecedor: '',
-        cliente: '',
-        planoContas: '',
-      });
+    if (isEdit) {
+      const id = params.get('idcliente');
+      if (!id) return;
+
+      const fetchCliente = async () => {
+        try {
+          const res = await getClient(id);
+          const data = res.data ?? res;
+
+          const formatCep = data.cep
+            ?.replace(/\D/g, '')
+            .replace(/^(\d{5})(\d)/, '$1-$2');
+
+          setForm({
+            name: data.nome || '',
+            email: data.email || '',
+            cpf: data.cpf_cnpj || '',
+            telefone: data.telefone || '',
+            rua: data.rua || data.logradouro || '',
+            numero: data.numero?.toString() || '',
+            complemento: data.complemento || '',
+            bairro: data.bairro || '',
+            cep: formatCep || '',
+            cidade: data.cidade || '',
+            estado: data.estado || '',
+          });
+        } catch (err) {
+          console.error('Erro ao buscar cliente:', err);
+        }
+      };
+
+      fetchCliente();
     }
-  }, [conta]);
-
-  // Calcula total quando valor/juros/desconto/parcelas mudam
-  useEffect(() => {
-    const valor = Number(form.valorParcela || 0);
-    const juros = Number(form.juros || 0);
-    const desconto = Number(form.desconto || 0);
-    const parcelas = Math.max(1, parseInt(form.parcelas || 1, 10));
-    const total = (valor + juros - desconto) * parcelas;
-    setForm((prev) => ({ ...prev, total: Number.isFinite(total) ? total : 0 }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.valorParcela, form.juros, form.desconto, form.parcelas]);
-
-  // Carrega combos do backend
-  useEffect(() => {
-    (async () => {
-      try {
-        const [cRes, fRes, pRes, pcRes] = await Promise.all([
-          api.get('clientes/'),
-          api.get('fornecedores/'),
-          api.get('propriedades/'),
-          api.get('plano-contas/'),
-        ]);
-        setClientes(Array.isArray(cRes.data) ? cRes.data : []);
-        setFornecedores(Array.isArray(fRes.data) ? fRes.data : []);
-        setPropriedades(Array.isArray(pRes.data) ? pRes.data : []);
-        setPlanos(Array.isArray(pcRes.data) ? pcRes.data : []);
-      } catch (err) {
-        console.error(err);
-        toast.error(`Falha ao carregar listas: ${parseApiError(err)}`);
-      }
-    })();
-  }, []);
+  }, [isEdit, params]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === 'telefone') {
+      const formatted = value
+        .replace(/\D/g, '')
+        .replace(/^(\d{2})(\d)/, '($1) $2')
+        .replace(/(\d{5})(\d{1,4})/, '$1-$2')
+        .substring(0, 15);
+
+      setForm((prev) => ({ ...prev, telefone: formatted }));
+      return;
+    }
+
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Monta o payload exatamente no formato do serializer APagar
-  const buildPayload = () => {
-    const base = {
-      descricao: form.descricao?.trim(),
-      valorparcela: parseFloat(form.valorParcela || 0),
-      numeroparcela: parseInt(form.parcelas || 1, 10),
-      datavencimento: form.vencimento || null,
-      dataquitacao: form.quitacao || null,
-      valorjuros: parseFloat(form.juros || 0),
-      valordesconto: parseFloat(form.desconto || 0),
-      idpropriedade: form.propriedade ? Number(form.propriedade) : null,
-      idfornecedor:
-        tipoConta === 'pagar' && form.fornecedor
-          ? Number(form.fornecedor)
-          : null,
-      idplanocontas: form.planoContas
-        ? Number(form.planoContas)
-        : null,
+  const handleCepBlur = async () => {
+    const cep = form.cep.replace(/\D/g, '');
+    if (cep.length !== 8) return;
+
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await res.json();
+      if (data.erro) return;
+
+      setForm((prev) => ({
+        ...prev,
+        rua: prev.rua || data.logradouro,
+        bairro: prev.bairro || data.bairro,
+        cidade: prev.cidade || data.localidade,
+        estado: prev.estado || data.uf,
+      }));
+    } catch (err) {
+      console.error('Erro ao buscar CEP:', err);
+    }
+  };
+
+  const validateCPF = (cpf) => {
+    let cleaned = cpf.replace(/[^\d]+/g, '');
+    if (cleaned.length !== 11 || /^(\d)\1+$/.test(cleaned)) return false;
+
+    let sum = 0;
+    for (let i = 0; i < 9; i += 1) {
+      sum += parseInt(cleaned.charAt(i), 10) * (10 - i);
+    }
+    let rev = 11 - (sum % 11);
+    if (rev >= 10) rev = 0;
+    if (rev !== parseInt(cleaned.charAt(9), 10)) return false;
+
+    sum = 0;
+    for (let i = 0; i < 10; i += 1) {
+      sum += parseInt(cleaned.charAt(i), 10) * (11 - i);
+    }
+    rev = 11 - (sum % 11);
+    if (rev >= 10) rev = 0;
+
+    return rev === parseInt(cleaned.charAt(10), 10);
+  };
+
+  const validateCNPJ = (cnpj) => {
+    let cleaned = cnpj.replace(/[^\d]+/g, '');
+    if (cleaned.length !== 14) return false;
+
+    let t = cleaned.length - 2;
+    let d1 = parseInt(cleaned.charAt(t), 10);
+    let d2 = parseInt(cleaned.charAt(t + 1), 10);
+
+    const calc = (x) => {
+      let n = cleaned.substring(0, x);
+      let y = x - 7;
+      let s = 0;
+
+      for (let i = x; i >= 1; i -= 1) {
+        s += n.charAt(x - i) * y;
+        y -= 1;
+        if (y < 2) y = 9;
+      }
+      let r = 11 - (s % 11);
+      return r > 9 ? 0 : r;
     };
 
-    if (form.id) {
-      base.idcontapagar = form.id;
-    }
-
-    return base;
+    return calc(t) === d1 && calc(t + 1) === d2;
   };
 
-  const handleSubmit = (e) => {
+  const validarCampos = () => {
+    const obrigatorios = [
+      'name',
+      'email',
+      'cpf',
+      'telefone',
+      'rua',
+      'numero',
+      'bairro',
+      'cidade',
+      'estado',
+      'cep',
+    ];
+
+    const novosErros = {};
+
+    obrigatorios.forEach((campo) => {
+      if (!form[campo] || !String(form[campo]).trim()) {
+        novosErros[campo] = 'Campo obrigatório';
+      }
+    });
+
+    const digits = form.cpf.replace(/\D/g, '');
+    const isCPF = digits.length === 11;
+    const isCNPJ = digits.length === 14;
+
+    if (!isCPF && !isCNPJ) {
+      novosErros.cpf = 'Informe CPF (11 dígitos) ou CNPJ (14 dígitos)';
+    } else if (isCPF && !validateCPF(form.cpf)) {
+      novosErros.cpf = 'CPF inválido';
+    } else if (isCNPJ && !validateCNPJ(form.cpf)) {
+      novosErros.cpf = 'CNPJ inválido';
+    }
+
+    setErrors(novosErros);
+    return Object.keys(novosErros).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.descricao.trim()) {
-      toast.error('Descrição é obrigatória');
-      return;
+    if (!validarCampos()) return;
+
+    const cepSemMascara = form.cep.replace(/\D/g, '');
+    const cpfCnpjSemMascara = form.cpf.replace(/\D/g, '');
+
+    const payload = {
+      nome: form.name,
+      email: form.email,
+      cpf_cnpj: cpfCnpjSemMascara,
+      telefone: form.telefone,
+      rua: form.rua,
+      numero: form.numero,
+      bairro: form.bairro,
+      cidade: form.cidade,
+      estado: form.estado,
+      cep: cepSemMascara,
+      complemento: form.complemento,
+    };
+
+    console.log('🔍 Enviando payload cliente:', payload);
+
+    try {
+      if (isEdit) {
+        const id = params.get('idcliente');
+        if (!id) {
+          alert('ID do cliente não encontrado na URL!');
+          return;
+        }
+
+        await updateClient(id, payload);
+        alert('Cliente editado com sucesso!');
+      } else {
+        await createClient(payload);
+        alert('Cliente cadastrado com sucesso!');
+      }
+
+      if (typeof onSaveSuccess === 'function') {
+        onSaveSuccess();
+      }
+    } catch (error) {
+      console.error('❌ Erro ao salvar cliente:', error);
+
+      if (error.response) {
+        alert(`Erro ao salvar cliente: ${JSON.stringify(error.response.data)}`);
+      } else if (error.request) {
+        alert('Erro de conexão com o servidor.');
+      } else {
+        alert('Erro desconhecido. Tente novamente.');
+      }
     }
-    onSave(buildPayload());
   };
+
+  const renderInput = (name, label, onBlur) => (
+    <div className="required-wrapper">
+      <label htmlFor={name}>{label}</label>
+      <span className="asterisk">*</span>
+      <input
+        id={name}
+        name={name}
+        value={form[name]}
+        onChange={handleChange}
+        onBlur={onBlur}
+        maxLength={name === 'cep' ? 9 : undefined}
+      />
+      {errors[name] && <small className="error">{errors[name]}</small>}
+    </div>
+  );
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>Descrição</label>
-      <input
-        type="text"
-        name="descricao"
-        value={form.descricao}
-        onChange={handleChange}
-        required
-      />
+    <div className="form-container">
+      <h3>{isEdit ? 'Editar cliente' : 'Cadastrar clientes'}</h3>
+      <form className="form-section" onSubmit={handleSubmit}>
+        {renderInput('name', 'Nome Completo')}
+        {renderInput('cpf', 'CPF / CNPJ')}
+        {renderInput('email', 'Email')}
 
-      <label>Valor da parcela</label>
-      <input
-        type="number"
-        step="0.01"
-        name="valorParcela"
-        value={form.valorParcela}
-        onChange={handleChange}
-        required
-      />
-
-      <label>Nº de parcelas</label>
-      <input
-        type="number"
-        name="parcelas"
-        min="1"
-        value={form.parcelas}
-        onChange={handleChange}
-      />
-
-      <label>Total</label>
-      <input type="text" value={`R$ ${toMoney(form.total)}`} readOnly />
-
-      <div style={{ display: 'flex', gap: 10 }}>
-        <div style={{ flex: 1 }}>
-          <label>Data vencimento</label>
-          <input
-            type="date"
-            name="vencimento"
-            value={form.vencimento}
-            onChange={handleChange}
-          />
+        <div className="input-row">
+          <div className="telefone-field">
+            {renderInput('telefone', 'Telefone')}
+          </div>
+          <div className="cep-field">
+            {renderInput('cep', 'CEP', handleCepBlur)}
+          </div>
         </div>
-        <div style={{ flex: 1 }}>
-          <label>Data quitação</label>
-          <input
-            type="date"
-            name="quitacao"
-            value={form.quitacao}
-            onChange={handleChange}
-          />
+
+        {renderInput('rua', 'Logradouro')}
+        <div className="input-row">
+          {renderInput('numero', 'Número')}
+          {renderInput('complemento', 'Complemento')}
         </div>
-      </div>
 
-      <div style={{ display: 'flex', gap: 10 }}>
-        <div style={{ flex: 1 }}>
-          <label>Juros</label>
-          <input
-            type="number"
-            step="0.01"
-            name="juros"
-            value={form.juros}
-            onChange={handleChange}
-          />
-        </div>
-        <div style={{ flex: 1 }}>
-          <label>Desconto</label>
-          <input
-            type="number"
-            step="0.01"
-            name="desconto"
-            value={form.desconto}
-            onChange={handleChange}
-          />
-        </div>
-      </div>
+        {renderInput('bairro', 'Bairro')}
+        {renderInput('cidade', 'Cidade')}
+        {renderInput('estado', 'Estado')}
 
-      <label>Propriedade</label>
-      <select
-        name="propriedade"
-        value={form.propriedade}
-        onChange={handleChange}
-      >
-        <option value="">Selecione</option>
-        {propriedades.map((p) => (
-          <option
-            key={p.idpropriedade ?? p.id}
-            value={p.idpropriedade ?? p.id}
-          >
-            {p.descricao}
-          </option>
-        ))}
-      </select>
-
-      {tipoConta === 'receber' ? (
-        <>
-          <label>Cliente</label>
-          <select
-            name="cliente"
-            value={form.cliente}
-            onChange={handleChange}
-          >
-            <option value="">Selecione</option>
-            {clientes.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nome}
-              </option>
-            ))}
-          </select>
-        </>
-      ) : (
-        <>
-          <label>Fornecedor</label>
-          <select
-            name="fornecedor"
-            value={form.fornecedor}
-            onChange={handleChange}
-          >
-            <option value="">Selecione</option>
-            {fornecedores.map((f) => (
-              <option
-                key={f.idfornecedor ?? f.id}
-                value={f.idfornecedor ?? f.id}
-              >
-                {f.nome}
-              </option>
-            ))}
-          </select>
-        </>
-      )}
-
-      <label>Plano de contas</label>
-      <select
-        name="planoContas"
-        value={form.planoContas}
-        onChange={handleChange}
-      >
-        <option value="">Selecione</option>
-        {planos.map((pc) => (
-          <option
-            key={pc.idplanocontas ?? pc.id}
-            value={pc.idplanocontas ?? pc.id}
-          >
-            {pc.descricao}
-          </option>
-        ))}
-      </select>
-
-      <button type="submit" className="salvar-btn">
-        {conta
-          ? 'Salvar alterações'
-          : `Adicionar conta a ${
-              tipoConta === 'receber' ? 'receber' : 'pagar'
-            }`}
-      </button>
-    </form>
+        <p className="note-obrigatorio">* campo obrigatório</p>
+        <button type="submit">
+          {isEdit ? 'Salvar alterações' : 'Adicionar cliente'}
+        </button>
+      </form>
+    </div>
   );
 }
+
+export default ClienteForm;

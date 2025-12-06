@@ -3,10 +3,18 @@ import './SupplierDetails.css';
 
 function ClienteDetails({ client, onClose }) {
   const handleEdit = () => {
+    const id = client.id ?? client.idcliente;
+
+    if (!id) {
+      alert('ID do cliente não encontrado para edição.');
+      return;
+    }
+
     const query = new URLSearchParams({
-      idcliente: client.idcliente,
+      idcliente: id,
       edit: 'true',
     }).toString();
+
     window.location.href = `/clientes/cadastrar?${query}`;
   };
 
