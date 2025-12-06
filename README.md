@@ -93,8 +93,7 @@ Node.js 16+ (inclui npm)
 
 ## Como executar o projeto
 1. Clonando o repositório
-bash
-Copiar código
+
 git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO_SIGAS.git
 cd SEU_REPOSITORIO_SIGAS
 Substitua SEU_USUARIO e SEU_REPOSITORIO_SIGAS pelos dados reais do seu GitHub.
@@ -102,50 +101,40 @@ Substitua SEU_USUARIO e SEU_REPOSITORIO_SIGAS pelos dados reais do seu GitHub.
 2. Backend (Django)
 Acesse a pasta do backend:
 
-bash
-Copiar código
+
 cd backend
+
+
 Crie e ative um ambiente virtual (exemplo com venv):
 
-bash
-Copiar código
 python -m venv .venv
 source .venv/bin/activate  # Linux/Mac
 .venv\Scripts\activate   # Windows (PowerShell/CMD)
+
 Instale as dependências:
 
-bash
-Copiar código
 pip install -r requirements.txt
+
 Aplique as migrações:
 
-bash
-Copiar código
 python manage.py migrate
+
+
 Crie um superusuário (opcional, para acessar o admin):
 
-bash
-Copiar código
 python manage.py createsuperuser
 Execute o servidor de desenvolvimento:
 
-bash
-Copiar código
 python manage.py runserver
 O backend ficará disponível, por padrão, em:
 http://127.0.0.1:8000/
 
 3. Frontend (React)
-De volta à raiz do projeto (onde está package.json):
 
-bash
-Copiar código
 cd ..
 npm install
 Após instalar as dependências, execute o frontend:
 
-bash
-Copiar código
 npm start
 
 O frontend ficará disponível normalmente em:
@@ -175,23 +164,17 @@ EMAIL_HOST_PASSWORD=sua_senha_ou_app_password
 DEFAULT_FROM_EMAIL=SIGAS <seu-email@gmail.com>
 
 ## Frontend
-Caso o frontend consuma a API via variável de ambiente (exemplo com React padrão):
 
 env
-Copiar código
+
 REACT_APP_API_BASE_URL=http://127.0.0.1:8000/api
-Ajuste o prefixo conforme o bundler usado (por exemplo, VITE_ se estiver usando Vite).
 
-## Testes
-Os testes automatizados podem ser executados com:
-
-bash
-Copiar código
 # Backend
+
 cd backend
 python manage.py test
 
-# Frontend (a partir da raiz, se configurado)
+# Frontend 
 npm test
 
 ## Contexto acadêmico
