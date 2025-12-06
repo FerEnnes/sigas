@@ -171,19 +171,21 @@ function SupplierForm({ onSaveSuccess }) {
     e.preventDefault();
     if (!validarCampos()) return;
 
-    const cepSemTraco = form.cep.replace(/-/g, '');
+    // limpa máscara de CEP e CPF/CNPJ antes de enviar para o backend
+    const cepSemMascara = form.cep.replace(/\D/g, '');
+    const cpfCnpjSemMascara = form.cpf.replace(/\D/g, '');
 
     const payload = {
       nome: form.name,
       email: form.email,
-      cpf_cnpj: form.cpf,
+      cpf_cnpj: cpfCnpjSemMascara,
       telefone: form.telefone,
       logradouro: form.rua,
       numero: form.numero,
       bairro: form.bairro,
       cidade: form.cidade,
       estado: form.estado,
-      cep: cepSemTraco,
+      cep: cepSemMascara,
       complemento: form.complemento
     };
 

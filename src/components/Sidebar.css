@@ -1,4 +1,3 @@
-/* ---- Base / container --------------------------------------------------- */
 .sidebar {
   width: 240px;
   height: 100vh;
@@ -24,7 +23,6 @@
   margin: 0;
 }
 
-/* ---- Links e itens ------------------------------------------------------ */
 .sidebar a {
   text-decoration: none;
   color: inherit;

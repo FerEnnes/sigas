@@ -1,4 +1,3 @@
-// Gera avatar com iniciais do nome
 export function stringAvatar(name) {
   const initials = name
     .split(' ')

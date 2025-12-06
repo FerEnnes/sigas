@@ -5,7 +5,25 @@ const api = axios.create({
   withCredentials: false,
 });
 
-// Helperzinho para tratar erro de forma amigável
+api.interceptors.request.use(
+  (config) => {
+    const token =
+      localStorage.getItem('token') || sessionStorage.getItem('token');
+
+    if (token) {
+      config.headers.Authorization = `Token ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
+
+export async function getClientes() {
+  const response = await api.get('clientes/');
+  return response.data;
+}
+
 export function parseApiError(err) {
   if (err.response) {
     const msg =
@@ -14,9 +32,10 @@ export function parseApiError(err) {
         : JSON.stringify(err.response.data);
     return `HTTP ${err.response.status} – ${msg}`;
   }
-  if (err.request) return 'Sem resposta do servidor (verifique se o backend está rodando).';
+  if (err.request) {
+    return 'Sem resposta do servidor (verifique se o backend está rodando).';
+  }
   return err.message || 'Erro desconhecido';
 }
 
 export default api;
-

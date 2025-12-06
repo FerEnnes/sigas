@@ -1,4 +1,3 @@
-// src/components/SupplierList.jsx
 import React, { useState, useEffect } from 'react';
 import { getSuppliers, getSupplier } from '../services/fornecedorService';
 import './SupplierList.css';

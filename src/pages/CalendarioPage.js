@@ -1,6 +1,4 @@
-// [BACKEND] Aqui futuramente vamos buscar e persistir os eventos usando Django + Postgres
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
@@ -40,6 +38,34 @@ const messages = {
   noEventsInRange: 'Sem eventos neste período',
 };
 
+const backendToFront = (ev) => ({
+  id: ev.id,
+  title: ev.titulo,
+  start: new Date(ev.inicio),
+  end: new Date(ev.fim),
+  tipo: ev.tipo || 'evento',
+  local: ev.local || '',
+  participantes: ev.participantes || '',
+  concluido: !!ev.concluido,
+  conta_pagar: ev.conta_pagar,
+  conta_receber: ev.conta_receber,
+});
+
+const frontToBackend = (ev) => ({
+  titulo: ev.title,
+  inicio: ev.start.toISOString(),
+  fim:
+    ev.tipo === 'lembrete'
+      ? ev.start.toISOString()
+      : ev.end.toISOString(),
+  tipo: ev.tipo,
+  local: ev.local,
+  participantes: ev.participantes,
+  concluido: ev.concluido,
+  conta_pagar: ev.conta_pagar || null,
+  conta_receber: ev.conta_receber || null,
+});
+
 function CalendarioPage() {
   const [eventos, setEventos] = useState([]);
   const [modalAberto, setModalAberto] = useState(false);
@@ -50,7 +76,10 @@ function CalendarioPage() {
   const [visualizacao, setVisualizacao] = useState('month');
   const [dataAtual, setDataAtual] = useState(new Date());
 
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
   const [novoEvento, setNovoEvento] = useState({
+    id: null,
     title: '',
     start: moment(),
     end: moment().add(1, 'hour'),
@@ -60,8 +89,35 @@ function CalendarioPage() {
     concluido: false,
   });
 
+  useEffect(() => {
+    async function carregarEventos() {
+      if (!token) return;
+      try {
+        const res = await fetch('http://127.0.0.1:8000/api/agenda-eventos/', {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          console.error('Erro ao carregar eventos:', res.status);
+          return;
+        }
+
+        const data = await res.json();
+        const formatados = data.map(backendToFront);
+        setEventos(formatados);
+      } catch (err) {
+        console.error('Erro ao buscar eventos:', err);
+      }
+    }
+
+    carregarEventos();
+  }, [token]);
+
   const abrirModal = ({ start, end }) => {
     setNovoEvento({
+      id: null,
       title: '',
       start: moment(start),
       end: moment(end),
@@ -71,6 +127,7 @@ function CalendarioPage() {
       concluido: false,
     });
     setEditando(false);
+    setEventoSelecionado(null);
     setModalAberto(true);
   };
 
@@ -79,39 +136,112 @@ function CalendarioPage() {
     setEventoSelecionado(null);
   };
 
-  const salvarEvento = () => {
+  const salvarEvento = async () => {
     if (!novoEvento.title.trim()) {
       alert('Digite um título');
       return;
     }
 
-    const novo = {
-      ...novoEvento,
-      start: novoEvento.start.toDate(),
-      end:
-        novoEvento.tipo === 'lembrete'
-          ? novoEvento.start.toDate()
-          : novoEvento.end.toDate(),
-    };
-
-    if (editando) {
-      // [BACKEND] PUT: Atualizar evento existente no backend
-      const atualizados = eventos.map((ev) =>
-        ev === eventoSelecionado ? novo : ev
-      );
-      setEventos(atualizados);
-    } else {
-      // [BACKEND] POST: Criar novo evento no backend
-      setEventos([...eventos, novo]);
+    if (!token) {
+      alert('Sessão expirada. Faça login novamente.');
+      return;
     }
 
-    fecharModal();
+    const payload = frontToBackend({
+      ...novoEvento,
+      start: novoEvento.start,
+      end: novoEvento.end,
+    });
+
+    try {
+      if (editando && novoEvento.id) {
+        const res = await fetch(
+          `http://127.0.0.1:8000/api/agenda-eventos/${novoEvento.id}/`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(payload),
+          }
+        );
+
+        if (!res.ok) {
+          alert('Erro ao atualizar evento.');
+          return;
+        }
+
+        const data = await res.json();
+        const evAtualizado = backendToFront(data);
+
+        setEventos((prev) =>
+          prev.map((ev) => (ev.id === evAtualizado.id ? evAtualizado : ev))
+        );
+      } else {
+        const res = await fetch('http://127.0.0.1:8000/api/agenda-eventos/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Token ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          alert('Erro ao criar evento.');
+          return;
+        }
+
+        const data = await res.json();
+        const evNovo = backendToFront(data);
+        setEventos((prev) => [...prev, evNovo]);
+      }
+
+      fecharModal();
+    } catch (err) {
+      console.error('Erro ao salvar evento:', err);
+      alert('Erro ao salvar evento.');
+    }
   };
 
-  const excluirEvento = () => {
-    // [BACKEND] DELETE: Remover evento do backend
-    setEventos(eventos.filter((ev) => ev !== eventoSelecionado));
-    fecharModal();
+  const excluirEvento = async () => {
+    if (!eventoSelecionado || !eventoSelecionado.id) {
+      fecharModal();
+      return;
+    }
+
+    if (!token) {
+      alert('Sessão expirada. Faça login novamente.');
+      return;
+    }
+
+    if (!window.confirm('Deseja realmente excluir este evento?')) return;
+
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/agenda-eventos/${eventoSelecionado.id}/`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+
+      if (res.status !== 204 && res.status !== 200) {
+        alert('Erro ao excluir evento.');
+        return;
+      }
+
+      setEventos((prev) =>
+        prev.filter((ev) => ev.id !== eventoSelecionado.id)
+      );
+      fecharModal();
+    } catch (err) {
+      console.error('Erro ao excluir evento:', err);
+      alert('Erro ao excluir evento.');
+    }
   };
 
   const editarEvento = (evento) => {
@@ -135,6 +265,8 @@ function CalendarioPage() {
     evento: '🗓️',
     lembrete: '🔔',
     tarefa: '✅',
+    conta_pagar: '💸',
+    conta_receber: '💰',
   };
 
   const filtrarEventos = () =>
@@ -155,8 +287,11 @@ function CalendarioPage() {
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       <Helmet>
-        <title>Calendário | SaaS Agro</title>
-        <meta name="description" content="Visualize e gerencie eventos, tarefas e lembretes no seu calendário agrícola." />
+        <title>Calendário | SIGAS</title>
+        <meta
+          name="description"
+          content="Visualize e gerencie eventos, tarefas, lembretes e contas no seu calendário."
+        />
       </Helmet>
 
       <Sidebar />
@@ -171,10 +306,12 @@ function CalendarioPage() {
               <Button
                 variant="contained"
                 style={{ backgroundColor: '#6da972' }}
-                onClick={() => abrirModal({
-                  start: moment(),
-                  end: moment().add(1, 'hour'),
-                })}
+                onClick={() =>
+                  abrirModal({
+                    start: moment(),
+                    end: moment().add(1, 'hour'),
+                  })
+                }
               >
                 + Criar Evento
               </Button>
@@ -187,12 +324,14 @@ function CalendarioPage() {
                   value={filtroTipo}
                   label="Tipo"
                   onChange={(e) => setFiltroTipo(e.target.value)}
-                  style={{ width: 150 }}
+                  style={{ width: 170 }}
                 >
                   <MenuItem value="todos">Todos</MenuItem>
                   <MenuItem value="evento">Evento</MenuItem>
                   <MenuItem value="lembrete">Lembrete</MenuItem>
                   <MenuItem value="tarefa">Tarefa</MenuItem>
+                  <MenuItem value="conta_pagar">Conta a pagar</MenuItem>
+                  <MenuItem value="conta_receber">Conta a receber</MenuItem>
                 </Select>
               </FormControl>
 
@@ -202,7 +341,7 @@ function CalendarioPage() {
                   value={filtroStatus}
                   label="Status"
                   onChange={(e) => setFiltroStatus(e.target.value)}
-                  style={{ width: 150 }}
+                  style={{ width: 170 }}
                 >
                   <MenuItem value="todos">Todos</MenuItem>
                   <MenuItem value="concluido">Concluído</MenuItem>
@@ -232,12 +371,15 @@ function CalendarioPage() {
                 let backgroundColor = '#4caf50';
                 if (event.tipo === 'lembrete') backgroundColor = '#2196f3';
                 else if (event.tipo === 'tarefa') backgroundColor = corTarefa(event);
+                else if (event.tipo === 'conta_pagar') backgroundColor = '#f57c00';
+                else if (event.tipo === 'conta_receber') backgroundColor = '#388e3c';
+
                 return { style: { backgroundColor, color: '#fff' } };
               }}
               components={{
                 event: ({ event }) => (
                   <span>
-                    {emojiTipo[event.tipo] || ''} [{event.tipo?.toUpperCase()}] {event.title}
+                    {emojiTipo[event.tipo] || ''} {event.title}
                   </span>
                 ),
               }}

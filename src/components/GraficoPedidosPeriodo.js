@@ -1,42 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend } from 'chart.js';
+import {
+  Chart as ChartJS,
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
-// Configura Chart.js
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend);
 
-function GraficoPedidosPeriodo() {
-  // eslint-disable-next-line no-unused-vars
-  const [dados, setDados] = useState([
-    { mes: 'Janeiro', pedidos: 10 },
-    { mes: 'Fevereiro', pedidos: 15 },
-    { mes: 'Março', pedidos: 8 },
-    { mes: 'Abril', pedidos: 12 },
-  ]);
+function GraficoPedidosPeriodo({ tipo }) {
+  const [dados, setDados] = useState([]);
 
-  //  BACKEND depois:
-  /*
   useEffect(() => {
-    async function fetchPedidosPeriodo() {
+    async function load() {
       try {
-        const res = await fetch('/api/contas/pedidos-periodo'); // Ajuste conforme sua API
+        const res = await fetch(`/api/contas-resumo/${tipo}/`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
-        setDados(json);
-      } catch (error) {
-        console.error('Erro ao buscar pedidos:', error);
+        setDados(Array.isArray(json) ? json : []);
+      } catch (err) {
+        console.error('Erro ao buscar dados do gráfico de pedidos:', err);
+        setDados([]);
       }
     }
 
-    fetchPedidosPeriodo();
-  }, []);
-  */
+    load();
+  }, [tipo]);
 
   const chartData = {
-    labels: dados.map(item => item.mes),
+    labels: dados.map((item) => item.label),
     datasets: [
       {
-        label: 'Pedidos',
-        data: dados.map(item => item.pedidos),
+        label: 'Contas',
+        data: dados.map((item) => item.qtd),
         fill: false,
         borderColor: '#2a9d8f',
         tension: 0.4,
@@ -47,6 +47,7 @@ function GraficoPedidosPeriodo() {
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: { display: true },
       tooltip: { mode: 'index', intersect: false },
@@ -57,8 +58,7 @@ function GraficoPedidosPeriodo() {
   };
 
   return (
-    <div style={{ marginTop: 30 }}>
-      <h3 style={{ marginBottom: 10 }}>Pedidos por período</h3>
+    <div style={{ marginTop: 10 }}>
       <Line data={chartData} options={options} />
     </div>
   );

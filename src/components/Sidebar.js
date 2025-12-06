@@ -5,12 +5,11 @@ import logo from '../assets/Logo.png';
 import {
   FiUsers, FiUser, FiUserCheck, FiTruck, FiHome, FiDollarSign, FiBell,
   FiCalendar, FiSettings, FiChevronDown, FiChevronUp, FiGrid, FiClipboard, FiFileText,
-  FiLogOut
+  FiLogOut, FiFeather
 } from 'react-icons/fi';
 import './Sidebar.css';
 import { IS_DEMO } from '../services/demoFlags';
 
-/* ----------------------------- utils ----------------------------------- */
 const clean = (v, fallback = '') => {
   if (v === undefined || v === null) return fallback;
   const s = String(v).trim();
@@ -51,7 +50,6 @@ function stringAvatar(name) {
     }
   };
 }
-/* ----------------------------------------------------------------------- */
 
 function Sidebar() {
   const location = useLocation();
@@ -60,27 +58,27 @@ function Sidebar() {
 
   const userObj = getUserObj();
 
-  // nome com fallback; em DEMO força admin_dev
   const nomeUsuario = IS_DEMO
     ? 'admin_dev'
-    : clean(userObj?.nome) ||
-      getBoth('nome') ||
-      clean(userObj?.username) ||
-      getBoth('username') ||
-      'Usuario';
+    : clean(
+        userObj?.first_name || userObj?.last_name
+          ? `${clean(userObj.first_name)} ${clean(userObj.last_name)}`.trim()
+          : userObj?.username || getBoth('nome') || getBoth('username'),
+        'Usuário'
+      );
 
-  // tipo de usuário; em DEMO força '1'
   const tipoStorage = IS_DEMO
     ? '1'
-    : clean(userObj?.tipoUsuario) ||
-      getBoth('tipoUsuario') ||
-      getBoth('tipousuario') ||
-      '';
+    : clean(
+        userObj?.tipousuario ??
+        getBoth('tipoUsuario') ??
+        getBoth('tipousuario'),
+        '2'
+      );
 
-  const isAdmin =
-    IS_DEMO ||
-    tipoStorage.toLowerCase() === '1' ||
-    tipoStorage.toLowerCase() === 'admin';
+  const tipoNumero = Number(tipoStorage || 2);
+  const isAdmin = IS_DEMO || tipoNumero === 1;
+  const tipoLabel = isAdmin ? 'Admin' : 'Usuário comum';
 
   const handleLogout = () => {
     localStorage.clear();
@@ -106,7 +104,7 @@ function Sidebar() {
           </Link>
         </li>
 
-        {/* Cadastros (toggle alinhado à grade dos itens) */}
+        {/* Cadastros */}
         <li className="menu-header">
           <button
             type="button"
@@ -172,7 +170,7 @@ function Sidebar() {
           </ul>
         )}
 
-        {/* Contas – link principal + caret para abrir submenu */}
+        {/* Contas */}
         <li className="menu-header">
           <div className="menu-split">
             <Link
@@ -239,6 +237,19 @@ function Sidebar() {
           </Link>
         </li>
 
+        {/* Assistente GerminAI (rota interna) */}
+        <li>
+          <Link
+            to="/assistente-germinai"
+            className={
+              isActive('/assistente-germinai') ? 'active sidebar-link' : 'sidebar-link'
+            }
+          >
+            <FiFeather className="icon" />
+            Assistente GerminAI
+          </Link>
+        </li>
+
         {/* Configurações */}
         <li>
           <Link
@@ -257,7 +268,7 @@ function Sidebar() {
           <Avatar {...stringAvatar(nomeUsuario)} />
           <div style={{ lineHeight: '1.2' }}>
             <strong style={{ fontSize: 14 }}>{nomeUsuario}</strong>
-            <small>{isAdmin ? 'Admin' : 'Usuário comum'}</small>
+            <small>{tipoLabel}</small>
           </div>
         </div>
         <button

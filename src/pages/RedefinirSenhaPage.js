@@ -5,7 +5,7 @@ import logo from '../assets/Logo.png';
 import imagemRural from '../assets/adult-harvesting-coffee1.jpg';
 
 function RedefinirSenhaPage() {
-  const { uid, token } = useParams(); // Token do link enviado por email
+  const { uid, token } = useParams();
   const navigate = useNavigate();
 
   const [novaSenha, setNovaSenha] = useState('');
@@ -35,14 +35,11 @@ function RedefinirSenhaPage() {
     }
 
     try {
-      const res = await fetch(`http://localhost:8000/api/redefinir-senha/${uid}/${token}/`, {
+      const res = await fetch(`http://127.0.0.1:8000/api/redefinir-senha/${uid}/${token}/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ senha: novaSenha }),
       });
-
-      // BACKEND (Django):
-      // Endpoint deve validar o token e atualizar a senha do usuário
 
       if (!res.ok) {
         setErro('Token inválido ou expirado. Solicite nova recuperação.');

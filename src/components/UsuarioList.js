@@ -13,9 +13,8 @@ function UsuarioList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-     fetchUsuarios();
-   }, []);
- 
+    fetchUsuarios();
+  }, []);
   const fetchUsuarios = async () => {
     try {
       const res = await getUsers();

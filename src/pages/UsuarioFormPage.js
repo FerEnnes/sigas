@@ -19,10 +19,10 @@ function UsuarioFormPage() {
 
       <Sidebar />
 
-      {/* Backend: neste form será usado POST (novo) ou PUT (atualizar) com base em `isEdit` */}
       <UsuarioForm />
     </div>
   );
 }
 
 export default UsuarioFormPage;
+

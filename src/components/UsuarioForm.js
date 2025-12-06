@@ -54,7 +54,7 @@ function UsuarioForm() {
             complemento: data.complemento || '',
             bairro: data.bairro || '',
             cidade: data.cidade || '',
-            estado: data.estado || '',
+            estado: (data.estado || '').toUpperCase(),
             tipousuario: data.tipousuario?.toString() || '2',
           });
         } catch (err) {
@@ -68,6 +68,7 @@ function UsuarioForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     if (name === 'telefone') {
       const formatted = value
         .replace(/\D/g, '')
@@ -75,6 +76,9 @@ function UsuarioForm() {
         .replace(/(\d{5})(\d{1,4})/, '$1-$2')
         .substring(0, 15);
       setForm({ ...form, telefone: formatted });
+    } else if (name === 'estado') {
+      // sempre UF com 2 letras maiúsculas
+      setForm({ ...form, estado: value.toUpperCase().slice(0, 2) });
     } else {
       setForm({ ...form, [name]: value });
     }
@@ -94,7 +98,7 @@ function UsuarioForm() {
         rua: data.logradouro,
         bairro: data.bairro,
         cidade: data.localidade,
-        estado: data.uf,
+        estado: (data.uf || '').toUpperCase(),
       }));
     } catch (err) {
       console.error('Erro ao buscar CEP:', err);
@@ -133,6 +137,10 @@ function UsuarioForm() {
       novosErros.cpf = 'CPF inválido';
     }
 
+    if (form.estado.trim().length !== 2) {
+      novosErros.estado = 'Informe a UF com 2 letras (ex.: SC)';
+    }
+
     setErrors(novosErros);
     return Object.keys(novosErros).length === 0;
   };
@@ -159,7 +167,7 @@ function UsuarioForm() {
       complemento: form.complemento,
       bairro: form.bairro,
       cidade: form.cidade,
-      estado: form.estado,
+      estado: form.estado.toUpperCase().slice(0, 2),
       cep: cepSemTraco,
       tipousuario: parseInt(form.tipousuario, 10)
     };
@@ -190,13 +198,12 @@ function UsuarioForm() {
     } catch (error) {
       console.error('Erro ao salvar usuário:', error);
       if (error.response) {
-        console.error("Detalhes do erro:", error.response.data);
+        console.error('Detalhes do erro:', error.response.data);
       }
       toast.error('Erro ao salvar usuário');
     }
   };
 
-  // NOVA função para inativar o usuário
   const handleInactivate = async () => {
     const id = params.get('id');
     if (!id) {
@@ -216,7 +223,10 @@ function UsuarioForm() {
 
   const renderInput = (name, label, onBlur) => (
     <div className="required-wrapper">
-      <label htmlFor={name}>{label}</label>
+      <label htmlFor={name}>
+        {label}
+        {name === 'estado' ? ' (UF)' : ''}
+      </label>
       <span className="asterisk">*</span>
       <input
         id={name}
@@ -224,7 +234,13 @@ function UsuarioForm() {
         value={form[name]}
         onChange={handleChange}
         onBlur={onBlur}
-        maxLength={name === 'cep' ? 9 : undefined}
+        maxLength={
+          name === 'cep'
+            ? 9
+            : name === 'estado'
+            ? 2
+            : undefined
+        }
       />
       {errors[name] && <small className="error">{errors[name]}</small>}
     </div>
@@ -255,7 +271,6 @@ function UsuarioForm() {
         {renderInput('bairro', 'Bairro')}
         {renderInput('cidade', 'Cidade')}
         {renderInput('estado', 'Estado')}
-
         <div className="required-wrapper">
           <label htmlFor="tipousuario">Tipo de Usuário</label>
           <span className="asterisk">*</span>
@@ -271,7 +286,6 @@ function UsuarioForm() {
           {isEdit ? 'Salvar alterações' : 'Adicionar usuário'}
         </button>
 
-        {/* Botão para inativar só aparece se estiver editando */}
         {isEdit && (
           <button
             type="button"

@@ -1,0 +1,26 @@
+.germinai-page {
+  padding: 24px;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.germinai-subtitle {
+  margin-bottom: 16px;
+  color: #555;
+}
+
+.germinai-frame-wrapper {
+  flex: 1;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.germinai-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}

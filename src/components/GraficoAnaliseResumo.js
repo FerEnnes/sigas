@@ -1,42 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
+import {
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
-//  Configura Chart.js
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-function GraficoAnaliseResumo() {
-  // eslint-disable-next-line no-unused-vars
-  const [dados, setDados] = useState([
-    { mes: 'Janeiro', valor: 15000 },
-    { mes: 'Fevereiro', valor: 18000 },
-    { mes: 'Março', valor: 12000 },
-    { mes: 'Abril', valor: 20000 },
-  ]);
+function GraficoAnaliseResumo({ tipo }) {
+  const [dados, setDados] = useState([]);
 
-  //  BACKEND depois:
-  /*
   useEffect(() => {
-    async function fetchDadosResumo() {
+    async function load() {
       try {
-        const res = await fetch('/api/contas/resumo'); // Ajuste a rota conforme seu backend
+        const res = await fetch(`/api/contas-resumo/${tipo}/`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
-        setDados(json);
-      } catch (error) {
-        console.error('Erro ao carregar resumo:', error);
+        setDados(Array.isArray(json) ? json : []);
+      } catch (err) {
+        console.error('Erro ao buscar dados do gráfico de análise:', err);
+        setDados([]);
       }
     }
 
-    fetchDadosResumo();
-  }, []);
-  */
+    load();
+  }, [tipo]);
 
   const chartData = {
-    labels: dados.map(item => item.mes),
+    labels: dados.map((item) => item.label),
     datasets: [
       {
-        label: 'Valor',
-        data: dados.map(item => item.valor),
+        label: 'Valor total',
+        data: dados.map((item) => item.total),
         backgroundColor: '#6ba877',
       },
     ],
@@ -44,6 +43,7 @@ function GraficoAnaliseResumo() {
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
       tooltip: { mode: 'index', intersect: false },
@@ -54,8 +54,7 @@ function GraficoAnaliseResumo() {
   };
 
   return (
-    <div style={{ marginTop: 30 }}>
-      <h3 style={{ marginBottom: 10 }}>Análise geral</h3>
+    <div style={{ marginTop: 10 }}>
       <Bar data={chartData} options={options} />
     </div>
   );

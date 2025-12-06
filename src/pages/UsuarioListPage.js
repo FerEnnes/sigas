@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import Sidebar from '../components/Sidebar';
 import UsuarioList from '../components/UsuarioList';
 import UsuarioForm from '../components/UsuarioForm';
-import './UsuarioPage.css'; // Reutiliza estilo do SupplierForm
+import './UsuarioPage.css';
 
 function UsuarioListPage() {
   const [selectedUser, setSelectedUser] = useState(null);
@@ -35,12 +35,22 @@ function UsuarioListPage() {
         <UsuarioList onEdit={handleEdit} onAdd={handleAdd} />
       </div>
 
-      {/* Backend: O formulário abaixo deve enviar os dados via POST/PUT para a API de usuários */}
       {showForm && (
         <div className="form-sidebar">
-          <button className="close-button" onClick={() => setShowForm(false)}>×</button>
+          <button
+            className="close-button"
+            onClick={() => setShowForm(false)}
+            type="button"
+          >
+            ×
+          </button>
           <h3>{selectedUser ? 'Editar usuário' : 'Cadastrar usuário'}</h3>
-          <UsuarioForm user={selectedUser} />
+          <UsuarioForm
+            user={selectedUser}
+            onSaveSuccess={() => {
+              setShowForm(false);
+            }}
+          />
         </div>
       )}
     </div>

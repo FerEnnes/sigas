@@ -1,4 +1,3 @@
-// src/components/PropertyList.jsx
 import React, { useState, useEffect } from 'react';
 import './PropertyList.css';
 import PropertyDetails from './PropertyDetails';

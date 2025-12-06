@@ -1,4 +1,3 @@
-// src/components/ClienteList.jsx
 import React, { useState, useEffect } from 'react';
 import { getClients, getClient } from '../services/clienteService';
 import ClienteDetails from './ClienteDetails';
