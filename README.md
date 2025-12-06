@@ -111,7 +111,7 @@ bash
 Copiar código
 python -m venv .venv
 source .venv/bin/activate  # Linux/Mac
-# .venv\Scripts\activate   # Windows (PowerShell/CMD)
+.venv\Scripts\activate   # Windows (PowerShell/CMD)
 Instale as dependências:
 
 bash
@@ -147,8 +147,7 @@ Após instalar as dependências, execute o frontend:
 bash
 Copiar código
 npm start
-# ou, conforme sua configuração:
-# npm run dev
+
 O frontend ficará disponível normalmente em:
 http://localhost:3000/ (ou porta configurada).
 
@@ -163,10 +162,11 @@ SECRET_KEY=sua_chave_secreta_segura
 
 ALLOWED_HOSTS=127.0.0.1,localhost
 
-# Configuração de banco de dados (exemplo com SQLite ou PostgreSQL)
-# DATABASE_URL=postgres://usuario:senha@host:porta/banco
+## Configuração de banco de dados (exemplo com SQLite ou PostgreSQL)
+DATABASE_URL=postgres://usuario:senha@host:porta/banco
 
-# Configuração de e-mail (exemplo)
+Configuração de e-mail (exemplo)
+
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
