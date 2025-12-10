@@ -82,44 +82,37 @@
   border-radius:12px;
   box-shadow:0 1px 4px rgba(16,24,40,.04);
   padding:0;
-  overflow:hidden;
+  overflow:hidden;   /* só para não vazar borda da tabela */
 }
+
+/* título normal, sem flex */
 .listagem-resumo h3{
   margin:0;
   padding:16px;
 }
+
+/* AQUI fica o scroll só da lista */
 .listagem-resumo .table-wrap{
   width:100%;
-  overflow-x:auto;           /* rola só a tabela no celular */
+  max-height:320px;   /* ajuste fino da altura visível da lista */
+  overflow-y:auto;    /* rolagem vertical só na lista */
+  overflow-x:auto;    /* horizontal só se apertar no mobile */
 }
+
 .listagem-resumo table{
   width:100%;
   border-collapse:collapse;
-  min-width: 720px;          /* evita “amassar” colunas estreitas */
+  min-width:720px;
 }
-.listagem-resumo th, .listagem-resumo td{
+
+.listagem-resumo th,
+.listagem-resumo td{
   padding:12px 14px;
   text-align:left;
   border-top:1px solid #eef1f3;
 }
+
 .listagem-resumo th{
   font-size:13px;
   color:#667085;
-}
-
-/* ===== Responsividade ===== */
-@media (max-width: 1200px){
-  .grafico-card{ min-height: 220px; }
-}
-
-@media (max-width: 992px){
-  .card, .grafico-card{ grid-column: 1 / -1; } /* empilha */
-  .grafico-card{ min-height: 200px; }
-}
-
-@media (max-width: 640px){
-  .contas-resumo-container{ padding:16px; }
-  .card h3{ font-size:20px; }
-  .grafico-card{ min-height: 180px; padding:12px; }
-  .aba-toggle button{ padding:8px 12px; }
 }

@@ -1,8 +1,20 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from 'recharts';
+
 import Sidebar from '../components/Sidebar';
-import GraficoPedidosPeriodo from '../components/GraficoPedidosPeriodo';
-import GraficoAnaliseResumo from '../components/GraficoAnaliseResumo';
 import api, { parseApiError } from '../services/api';
 import './ContasResumoPage.css';
 
@@ -19,21 +31,49 @@ function mapApiContaToResumoRow(apiRow, tipo) {
 
   const total = (valorParcela + juros - desconto) * parcelas;
 
+  const vencimento =
+    apiRow.datavencimento || apiRow.data_vencimento || apiRow.dataVencimento;
+  const quitacao =
+    apiRow.dataquitacao || apiRow.data_quitacao || apiRow.dataQuitacao;
+
   return {
     id: tipo === 'pagar' ? apiRow.idcontapagar : apiRow.idconta,
     descricao: apiRow.descricao,
     valorParcela,
     parcelas,
     total,
+    vencimento,
+    quitacao,
+    tipo,
   };
 }
 
-function ContasResumoPage() {
-  const [abaAtiva, setAbaAtiva] = useState('pagar'); // 'pagar' | 'receber'
-  const [items, setItems] = useState([]);
-  const [totalReceber, setTotalReceber] = useState(0); // total contas a receber
+const STATUS_LABEL = {
+  aberta: 'Em aberto',
+  atrasada: 'Atrasada',
+  paga: 'Paga',
+};
 
-  // carrega contas da aba atual
+const STATUS_COLORS = {
+  aberta: '#f59e0b',
+  atrasada: '#dc2626',
+  paga: '#16a34a',
+};
+
+function classificarStatus(row) {
+  const hoje = new Date();
+  const venc = row.vencimento ? new Date(row.vencimento) : null;
+  const quit = row.quitacao ? new Date(row.quitacao) : null;
+
+  if (quit) return 'paga';
+  if (venc && venc < hoje) return 'atrasada';
+  return 'aberta';
+}
+
+function ContasResumoPage() {
+  const [abaAtiva, setAbaAtiva] = useState('pagar');
+  const [items, setItems] = useState([]);
+
   useEffect(() => {
     async function carregar() {
       try {
@@ -51,30 +91,70 @@ function ContasResumoPage() {
     carregar();
   }, [abaAtiva]);
 
-  // calcula total de contas a receber (usado como "Total vendido")
-  useEffect(() => {
-    async function carregarTotalReceber() {
-      try {
-        const res = await api.get('contas-receber/');
-        const raw = Array.isArray(res.data) ? res.data : [];
-        const mapped = raw.map((row) => mapApiContaToResumoRow(row, 'receber'));
-        const total = mapped.reduce(
-          (acc, it) => acc + Number(it.total || 0),
-          0,
-        );
-        setTotalReceber(total);
-      } catch (err) {
-        console.error('Erro ao calcular total vendido (contas a receber)', err);
-      }
-    }
-
-    carregarTotalReceber();
-  }, []);
-
-  const totalAba = useMemo(
+  const totalGeral = useMemo(
     () => (items || []).reduce((acc, it) => acc + Number(it.total || 0), 0),
     [items],
   );
+
+  const totalEmAberto = useMemo(
+    () =>
+      (items || []).reduce((acc, it) => {
+        const status = classificarStatus(it);
+        if (status === 'paga') return acc;
+        return acc + Number(it.total || 0);
+      }, 0),
+    [items],
+  );
+
+  const dadosFluxoMes = useMemo(() => {
+    const agora = new Date();
+    const inicioPeriodo = new Date(agora);
+    inicioPeriodo.setMonth(inicioPeriodo.getMonth() - 5);
+    inicioPeriodo.setDate(1);
+
+    const mapa = new Map();
+
+    (items || []).forEach((row) => {
+      if (!row.vencimento) return;
+      const d = new Date(row.vencimento);
+      if (Number.isNaN(d.getTime()) || d < inicioPeriodo || d > agora) return;
+
+      const chave = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+        2,
+        '0',
+      )}`;
+      const rotulo = `${String(d.getMonth() + 1).padStart(2, '0')}/${String(
+        d.getFullYear(),
+      ).slice(-2)}`;
+
+      const atual = mapa.get(chave) || { mes: rotulo, total: 0 };
+      atual.total += Number(row.total || 0);
+      mapa.set(chave, atual);
+    });
+
+    const ordenado = Array.from(mapa.keys())
+      .sort()
+      .map((k) => mapa.get(k));
+
+    return ordenado;
+  }, [items]);
+
+  const dadosStatus = useMemo(() => {
+    const soma = { aberta: 0, atrasada: 0, paga: 0 };
+
+    (items || []).forEach((row) => {
+      const status = classificarStatus(row);
+      soma[status] += Number(row.total || 0);
+    });
+
+    return Object.entries(soma)
+      .filter(([, valor]) => valor > 0)
+      .map(([status, valor]) => ({
+        name: STATUS_LABEL[status],
+        status,
+        value: valor,
+      }));
+  }, [items]);
 
   return (
     <div className="app">
@@ -102,24 +182,70 @@ function ContasResumoPage() {
 
         <div className="cards-resumo">
           <div className="card">
-            <p>Total vendido (contas a receber)</p>
-            <h3>{fmtBRL(totalReceber)}</h3>
+            <p>
+              {abaAtiva === 'pagar'
+                ? 'Total de contas a pagar (abertas e pagas)'
+                : 'Total de contas a receber (abertas e pagas)'}
+            </p>
+            <h3>{fmtBRL(totalGeral)}</h3>
           </div>
           <div className="card">
-            <p>Total {abaAtiva === 'pagar' ? 'a pagar' : 'a receber'}</p>
-            <h3>{fmtBRL(totalAba)}</h3>
+            <p>
+              {abaAtiva === 'pagar'
+                ? 'Total em aberto a pagar'
+                : 'Total em aberto a receber'}
+            </p>
+            <h3>{fmtBRL(totalEmAberto)}</h3>
           </div>
         </div>
 
         <div className="graficos-resumo">
           <div className="grafico-card">
-            <h3>Contas do período</h3>
-            <GraficoPedidosPeriodo tipo={abaAtiva} />
+            <h3>Fluxo de contas (últimos 6 meses)</h3>
+            {dadosFluxoMes.length === 0 ? (
+              <p className="grafico-vazio">Sem dados suficientes para o período.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={dadosFluxoMes}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="mes" />
+                  <YAxis tickFormatter={fmtBRL} />
+                  <Tooltip formatter={(v) => fmtBRL(v)} />
+                  <Bar dataKey="total" radius={[6, 6, 0, 0]} fill="#1d4ed8" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
 
           <div className="grafico-card">
-            <h3>Análise geral</h3>
-            <GraficoAnaliseResumo tipo={abaAtiva} />
+            <h3>Status das contas</h3>
+            {dadosStatus.length === 0 ? (
+              <p className="grafico-vazio">Sem contas cadastradas.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={260}>
+                <PieChart>
+                  <Pie
+                    data={dadosStatus}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={90}
+                    paddingAngle={4}
+                  >
+                    {dadosStatus.map((entry, index) => {
+                      const color =
+                        STATUS_COLORS[entry.status] ||
+                        ['#60a5fa', '#f97316', '#22c55e'][index % 3];
+                      return <Cell key={entry.status} fill={color} />;
+                    })}
+                  </Pie>
+                  <Tooltip formatter={(v) => fmtBRL(v)} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
@@ -133,26 +259,39 @@ function ContasResumoPage() {
                 <tr>
                   <th>#</th>
                   <th>Descrição</th>
+                  <th>Vencimento</th>
                   <th>Valor parcela</th>
                   <th>Parcelas</th>
                   <th>Total (calculado)</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {(items || []).map((row, idx) => (
-                  <tr key={row.id || idx}>
-                    <td>{idx + 1}</td>
-                    <td>{row.descricao}</td>
-                    <td>{fmtBRL(row.valorParcela)}</td>
-                    <td>{row.parcelas}</td>
-                    <td style={{ color: '#166534', fontWeight: 600 }}>
-                      {fmtBRL(row.total)}
-                    </td>
-                  </tr>
-                ))}
+                {(items || []).map((row, idx) => {
+                  const status = classificarStatus(row);
+                  return (
+                    <tr key={row.id || idx}>
+                      <td>{idx + 1}</td>
+                      <td>{row.descricao}</td>
+                      <td>
+                        {row.vencimento
+                          ? new Date(row.vencimento).toLocaleDateString('pt-BR')
+                          : '-'}
+                      </td>
+                      <td>{fmtBRL(row.valorParcela)}</td>
+                      <td>{row.parcelas}</td>
+                      <td style={{ fontWeight: 600 }}>
+                        {fmtBRL(row.total)}
+                      </td>
+                      <td className={`status-pill status-${status}`}>
+                        {STATUS_LABEL[status]}
+                      </td>
+                    </tr>
+                  );
+                })}
                 {(!items || items.length === 0) && (
                   <tr>
-                    <td colSpan={5} style={{ color: '#6b7280' }}>
+                    <td colSpan={7} style={{ color: '#6b7280' }}>
                       Nenhum registro.
                     </td>
                   </tr>
@@ -161,7 +300,6 @@ function ContasResumoPage() {
             </table>
           </div>
         </div>
-
       </div>
     </div>
   );
