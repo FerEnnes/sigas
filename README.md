@@ -250,4 +250,5 @@ Na raiz do projeto:
 ## Licença
 
 Este projeto está licenciado sob a Licença MIT.
+
 A reutilização parcial ou total do código deve citar a autora e a instituição.
