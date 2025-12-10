@@ -1,193 +1,253 @@
 # SIGAS – Sistema Inteligente para Gerenciamento de Agricultura Sintrópica
 
-O **SIGAS (Sistema Inteligente para Gerenciamento de Agricultura Sintrópica)** é um sistema web voltado ao apoio da gestão econômico-financeira e do planejamento produtivo em propriedades que adotam **agricultura sintrópica**. O sistema foi desenvolvido em contexto acadêmico, como parte de um Trabalho de Conclusão de Curso (TCC), com foco em pequenos produtores e na organização de informações para tomada de decisão.
+O **SIGAS** é um sistema web voltado ao apoio da gestão econômico-financeira e do planejamento produtivo em propriedades que adotam agricultura sintrópica.  
+O sistema foi desenvolvido em contexto acadêmico, como parte de um Trabalho de Conclusão de Curso (TCC), com foco em pequenos produtores e na organização das informações para tomada de decisão.
 
-Além dos módulos de cadastro e gestão financeira, o SIGAS integra o **GerminAi**, um módulo inteligente para apoiar o planejamento agroflorestal em sistemas sintrópicos.
+Além dos módulos de cadastro e gestão financeira, o SIGAS integra o **GerminAI**, um módulo inteligente para apoiar o planejamento agroflorestal em sistemas sintrópicos.
 
 ---
 
 ## Objetivos do sistema
 
-- Organizar de forma estruturada os **dados de produtores, propriedades e unidades produtivas**.
-- Registrar e acompanhar **lançamentos econômico-financeiros** (receitas, despesas, centros de custos etc.).
-- Permitir a análise de informações por meio de **relatórios e indicadores básicos**.
-- Integrar um módulo inteligente (GerminAi) para **apoiar o planejamento de sistemas agroflorestais sintrópicos**.
+- Organizar de forma estruturada os dados de produtores, propriedades e unidades produtivas.  
+- Registrar e acompanhar lançamentos econômico-financeiros (receitas, despesas, centros de custos etc.).  
+- Permitir a análise de informações por meio de relatórios e indicadores básicos.  
+- Integrar um módulo inteligente (GerminAI) para apoiar o planejamento de sistemas agroflorestais sintrópicos.
 
 ---
 
 ## Arquitetura
 
-O SIGAS é organizado em uma arquitetura web em camadas, composta por:
+O SIGAS é organizado em uma arquitetura web em camadas:
 
 - **Backend (Django)**  
-  - API responsável pelas regras de negócio, persistência dos dados e exposição dos endpoints REST.
+  API responsável pelas regras de negócio, persistência dos dados e exposição dos endpoints REST.
+
 - **Frontend (React)**  
-  - Interface web para interação com usuários (produtores, administradores e demais perfis).
-- **Módulo GerminAi (Streamlit)**  
-  - Aplicação web independente, incorporada ao SIGAS via `iframe`, focada em recomendações para agricultura sintrópica.
+  Interface web utilizada por produtores(as), administradores(as) e demais perfis de usuário.
+
+- **Módulo GerminAI (Streamlit)**  
+  Aplicação web independente, incorporada ao SIGAS via `iframe`, focada em recomendações para agricultura sintrópica.
 
 ---
 
 ## Principais funcionalidades
 
-- Cadastro de **usuários** e perfis de acesso.
-- Cadastro de **produtores** e **propriedades rurais**.
-- Registro de **lançamentos financeiros**, organizados por categorias e centros de custo.
-- Visualização de **relatórios e listagens básicas** para apoio à gestão.
-- Acesso ao **GerminAi** para auxílio no planejamento de sistemas agroflorestais sintrópicos.
-
-> **Status:** projeto em desenvolvimento, com protótipo funcional para fins acadêmicos e de demonstração.
+- Cadastro de usuários e perfis de acesso.  
+- Cadastro de produtores e propriedades rurais.  
+- Cadastro de clientes, fornecedores e contas do plano de contas.  
+- Registro de lançamentos financeiros (contas a pagar, contas a receber etc.), organizados por categorias e centros de custos.  
+- Visualização de listagens e relatórios básicos para apoio à gestão.  
+- Acesso ao GerminAi para auxílio no planejamento de sistemas agroflorestais sintrópicos.
 
 ---
 
 ## Tecnologias utilizadas
 
 - **Backend**
-  - [Python 3.x](https://www.python.org/)
-  - [Django](https://www.djangoproject.com/)
-  - (Opcional) [Django REST Framework](https://www.django-rest-framework.org/), caso utilizado
-  - Banco de dados relacional (ex.: SQLite/PostgreSQL, conforme configuração do projeto)
+  - Python 3.10.18  
+  - Django 5.2.5
+  - Banco de dados relacional PostgreSQL   15.7
 
 - **Frontend**
-  - [React](https://react.dev/)
-  - Gerenciador de pacotes: `npm` ou `yarn`
+  - React  18.3.1
+  - JavaScript  
+  - `npm` como gerenciador de pacotes  
 
 - **Módulo GerminAi**
-  - [Python 3.x](https://www.python.org/)
-  - [Streamlit](https://streamlit.io/)
+  - Python 3.12
+  - Google Gemini API (modelo: gemini-2.0-flash)
+  - Streamlit  
 
 ---
 
 ## Estrutura do repositório
 
-A estrutura atual do projeto segue, em linhas gerais, o padrão:
-
 ```text
 /
-├─ .venv/                  # Ambiente virtual Python (não versionado)
-├─ backend/                # Projeto Django (API do SIGAS)
+├─ backend/                 # Projeto Django (API do SIGAS)
+│  ├─ sigas_backend/        # Configurações principais do backend
+│  ├─ cadastros/            # App de cadastros (clientes, fornecedores, contas etc.)
+│  ├─ usuarios/             # App de usuários e autenticação
 │  ├─ manage.py
-│  ├─ sigas_backend/
-│  ├─ cadastros/
+│  └─ requirements.txt
+│
+├─ db_dumps/                # Dumps SQL usados no desenvolvimento
+│  └─ sigas_full_YYYY-MM-DD.sql
+│
+├─ public/                  # Pasta pública do frontend React
+│  ├─ index.html
+│  ├─ favicon.ico
 │  └─ ...
 │
-├─ node_modules/           # Dependências do React (não versionado)
-├─ public/                 # Pasta pública do React
-├─ src/                    # Código-fonte do frontend (React)
+├─ src/                     # Código-fonte do frontend (React)
+│  ├─ assets/               # Imagens e recursos estáticos
+│  ├─ components/           # Componentes reutilizáveis
+│  ├─ pages/                # Páginas (Login, Dashboard, Contas etc.)
+│  ├─ services/             # Serviços de acesso à API
+│  ├─ utils/                # Funções utilitárias
+│  ├─ App.js
+│  └─ index.js
+│
 ├─ .gitignore
 ├─ package.json
 ├─ package-lock.json
-└─ README.md               # Este arquivo
-------
+└─ README.md
+
+Pastas como `.venv/` (ambiente virtual Python) e `node_modules/` (dependências do React) são específicas do ambiente local e não devem ser versionadas.
 ```
+---
+
+## Repositórios relacionados
+
+- **SIGAS – sistema completo (frontend + backend):**  
+  https://github.com/FerEnnes/sigas
+
+- **GerminAi – módulo inteligente para agricultura sintrópica:**  
+  https://github.com/FerEnnes/GerminAi
+
+O repositório do GerminAi possui instruções próprias de instalação e uso.
+
+---
+
 ## Pré-requisitos
-Antes de iniciar, é recomendado ter instalado:
 
-Git
+Para executar o projeto localmente, recomenda-se ter instalado:
 
-Python 3.10+
+- Git  
+- Python 3.10.18  
+- Node.js 16 ou superior (inclui `npm`)  
+- Ferramenta para ambientes virtuais Python (`venv`, `virtualenv` etc.)
 
-Node.js 16+ (inclui npm)
-
-(Opcional) Virtualenv ou similar para isolar dependências Python
+---
 
 ## Como executar o projeto
-1. Clonando o repositório
 
-git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO_SIGAS.git
-cd SEU_REPOSITORIO_SIGAS
-Substitua SEU_USUARIO e SEU_REPOSITORIO_SIGAS pelos dados reais do seu GitHub.
+### 1. Clonar o repositório
 
-2. Backend (Django)
+```bash
+git clone https://github.com/FerEnnes/sigas.git
+cd sigas
+```
+---
+
+### 2. Backend (Django)
+
 Acesse a pasta do backend:
 
-
+```bash
 cd backend
-
+```
+---
 
 Crie e ative um ambiente virtual (exemplo com venv):
 
-python -m venv .venv
-source .venv/bin/activate  # Linux/Mac
-.venv\Scripts\activate   # Windows (PowerShell/CMD)
+    python -m venv .venv
+
+# Linux / macOS
+
+    source .venv/bin/activate
+
+# Windows (PowerShell / CMD)
+
+    .\.venv\Scripts\activate
 
 Instale as dependências:
 
-pip install -r requirements.txt
+    pip install -r requirements.txt
 
-Aplique as migrações:
+Aplique as migrações do banco:
 
-python manage.py migrate
+    python manage.py migrate
 
+Crie um superusuário (opcional, para acessar o painel administrativo do Django):
 
-Crie um superusuário (opcional, para acessar o admin):
+    python manage.py createsuperuser
 
-python manage.py createsuperuser
 Execute o servidor de desenvolvimento:
 
-python manage.py runserver
-O backend ficará disponível, por padrão, em:
-http://127.0.0.1:8000/
+    python manage.py runserver
 
-3. Frontend (React)
+Por padrão, o backend ficará disponível em:
 
-cd ..
-npm install
-Após instalar as dependências, execute o frontend:
+    http://127.0.0.1:8000/
 
-npm start
+### 3. Frontend (React)
+
+Em outro terminal, na raiz do projeto (`sigas/`):
+
+    cd sigas   # caso ainda não esteja na raiz
+    npm install
+    npm start
 
 O frontend ficará disponível normalmente em:
-http://localhost:3000/ (ou porta configurada).
 
-Variáveis de ambiente
-As variáveis de ambiente do projeto devem ser configuradas em arquivos como .env, que não devem ser versionados.
+    http://localhost:3000/
+
+(ou outra porta definida pelo React).
+
+## Variáveis de ambiente
+
+As variáveis de ambiente devem ser definidas em arquivos .env, que não devem ser versionados.
 
 Backend (backend/.env)
-env
-Copiar código
+
+Exemplo de configuração:
+```
 DEBUG=True
 SECRET_KEY=sua_chave_secreta_segura
-
 ALLOWED_HOSTS=127.0.0.1,localhost
+````
 
-## Configuração de banco de dados (exemplo com SQLite ou PostgreSQL)
+# Configuração de banco de dados (exemplo com PostgreSQL)
+```
 DATABASE_URL=postgres://usuario:senha@host:porta/banco
-
-Configuração de e-mail (exemplo)
-
+```
+# Configuração de e-mail (exemplo)
+```
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
 EMAIL_HOST_USER=seu-email@gmail.com
 EMAIL_HOST_PASSWORD=sua_senha_ou_app_password
 DEFAULT_FROM_EMAIL=SIGAS <seu-email@gmail.com>
+```
+Ajuste os valores conforme o ambiente (desenvolvimento, teste ou produção).
 
-## Frontend
+## Frontend (.env na raiz do projeto React)
 
-env
-
+Exemplo de configuração:
+```
 REACT_APP_API_BASE_URL=http://127.0.0.1:8000/api
+```
+## Execução dos testes
 
-# Backend
+### Backend (Django)
 
-cd backend
-python manage.py test
+Na pasta backend/:
 
-# Frontend 
-npm test
+        python manage.py test
 
+### Frontend (React)
+
+Na raiz do projeto:
+
+        npm test
+
+--- 
 ## Contexto acadêmico
-Este projeto foi desenvolvido em contexto acadêmico, com foco em:
 
-Organização e modelagem de dados relacionados à agricultura sintrópica.
+- Este projeto foi desenvolvido em contexto acadêmico, com foco em:
 
-Prototipação de um sistema de apoio à tomada de decisão para pequenos produtores.
+- Organização e modelagem de dados relacionados à agricultura sintrópica.
 
-Integração de um módulo inteligente (GerminAi) para apoio ao planejamento de sistemas agroflorestais.
+- Prototipação de um sistema de apoio à tomada de decisão para pequenos produtores.
 
-O SIGAS pode ser evoluído para incluir novos módulos (por exemplo, análise de produtividade, integração com dados climáticos e geográficos, entre outros).
+- Integração de um módulo inteligente (GerminAi) para apoio ao planejamento de sistemas agroflorestais.
 
+- O SIGAS pode ser evoluído para incluir novos módulos, como análise de produtividade, integração com dados climáticos e geográficos, entre outros.
+---
 ## Licença
-Licenciado sob a Licença MIT.
-Este projeto é de uso acadêmico. A reutilização parcial ou total do código deve citar a autora e a instituição 
+
+Este projeto está licenciado sob a Licença MIT.
+A reutilização parcial ou total do código deve citar a autora e a instituição.
